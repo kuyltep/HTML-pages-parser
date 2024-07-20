@@ -19,7 +19,13 @@ class Zone {
 }
 
 const fetchPageData = async (url) => {
-  const response = await axios.get(url);
+  const response = await axios.get(url, {
+    responseType: "text",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+    },
+  });
   return response.data;
 };
 
@@ -93,23 +99,23 @@ const buildZones = (cher, element) => {
   const elem = $(`${tag}`).get(0);
   if (elem) {
     const rect = elem.getBoundingClientRect();
-    const width = rect.width;
-    const leftOffset = rect.left;
+    const left = rect.left;
+    const right = rect.width + left;
+
+    const text = element.text().trim();
+    const type = isBlockElement(tag) ? "block" : "inline";
+    const zone = new Zone(type, text, left, right);
+
+    element.children().each((i, child) => {
+      const childElement = cher(child);
+      const childZone = buildZones(cher, childElement);
+      if (childZone) {
+        zone.addChild(childZone);
+      }
+    });
+
+    return zone;
   }
-
-  const text = element.text().trim();
-  const type = isBlockElement(tag) ? "block" : "inline";
-  const zone = new Zone(type, text, left, right);
-
-  element.children().each((i, child) => {
-    const childElement = cher(child);
-    const childZone = buildZones(cher, childElement);
-    if (childZone) {
-      zone.addChild(childZone);
-    }
-  });
-
-  return zone;
 };
 
 const splitInlineZones = (zone) => {
@@ -173,16 +179,12 @@ async function createColumnsFromUrl(url) {
   let zones = buildZones(cher, body);
   zones = splitInlineZones(zones);
 
-  const tolerance = 0.1 * (zones[0].right - zones[0].left);
-  let columns = groupZonesIntoColumns(zones, tolerance);
-  columns = simplifyColumns(columns, tolerance);
-
-  return columns;
+  return zones;
 }
 
 (async () => {
   const url =
-    "https://www.forbes.com/advisor/investing/cryptocurrency/best-crypto-wallets"; // Замените на нужный URL
+    "https://dailyhodl.com/2024/07/20/one-low-cap-altcoin-on-the-verge-of-a-big-breakout-says-analyst-michael-van-de-poppe-here-are-his-targets/"; // Замените на нужный URL
   const columns = await createColumnsFromUrl(url);
   console.log(JSON.stringify(columns, null, 2));
 })();
