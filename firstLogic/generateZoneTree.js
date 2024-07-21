@@ -1,10 +1,8 @@
-import { JSDOM } from "jsdom";
-import jquery from "jquery";
 import { handleLineBreaks } from "./handleLineBreaks.js";
+import { removeUselessTags } from "./removeUselessTags.js";
 
-export async function generateZoneTree(html) {
-  const { window } = new JSDOM(html);
-  const $ = jquery(window);
+export async function generateZoneTree($) {
+  removeUselessTags($);
 
   const body = $("body");
   let zones = [];
@@ -61,8 +59,6 @@ export async function generateZoneTree(html) {
   }
 
   createZones(body);
-
-  zones = handleLineBreaks(zones, $);
 
   return zones;
 }
