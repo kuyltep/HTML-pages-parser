@@ -39,13 +39,15 @@ async function fetchPageData(url) {
 
         if (isBlock && textContent) {
           const rect = getRect(child);
-          zones.push({
-            type: "block",
-            tag: tagName,
-            text: textContent,
-            rect: rect,
-            children: generateZoneTree(child),
-          });
+          if (rect.height > 0) {
+            zones.push({
+              type: "block",
+              tag: tagName,
+              text: tagName === "div" ? "" : textContent,
+              rect: rect,
+              children: generateZoneTree(child),
+            });
+          }
         } else if (isInline && textContent) {
           if (zones.length === 0 || zones[zones.length - 1].type !== "inline") {
             const rect = getRect(child);
