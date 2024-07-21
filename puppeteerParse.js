@@ -10,8 +10,10 @@ function simplifyColumnTree(columns, tolerance = 0.1) {
 
     const parentColumn = simplifiedColumns.find(
       (col) =>
-        Math.abs(col.rect.left - column.rect.left) <= toleranceValue &&
-        Math.abs(col.rect.right - column.rect.right) <= toleranceValue
+        (Math.abs(col.rect.left - left) <= toleranceValue &&
+          Math.abs(col.rect.right - right) <= toleranceValue) ||
+        (Math.abs(col.rect.left - left) >= toleranceValue &&
+          Math.abs(col.rect.right - right) >= toleranceValue)
     );
 
     if (parentColumn) {
@@ -40,8 +42,10 @@ function generateColumnTree(zones, tolerance = 0.1) {
 
       let column = columns.find(
         (col) =>
-          Math.abs(col.rect.left - left) <= toleranceValue &&
-          Math.abs(col.rect.right - right) <= toleranceValue
+          (Math.abs(col.rect.left - left) <= toleranceValue &&
+            Math.abs(col.rect.right - right) <= toleranceValue) ||
+          (Math.abs(col.rect.left - left) >= toleranceValue &&
+            Math.abs(col.rect.right - right) >= toleranceValue)
       );
 
       if (!column) {
