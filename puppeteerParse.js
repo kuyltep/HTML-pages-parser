@@ -1,14 +1,110 @@
 import puppeteer from "puppeteer";
+import * as fs from "fs";
+
+function simplifyColumnTree(columns, tolerance = 0.1) {
+  const simplifiedColumns = [];
+
+  columns.forEach((column) => {
+    const width = column.rect.right - column.rect.left;
+    const toleranceValue = width * tolerance;
+
+    const parentColumn = simplifiedColumns.find(
+      (col) =>
+        Math.abs(col.rect.left - column.rect.left) <= toleranceValue &&
+        Math.abs(col.rect.right - column.rect.right) <= toleranceValue
+    );
+
+    if (parentColumn) {
+      parentColumn.zones.push(...column.zones);
+    } else {
+      simplifiedColumns.push(column);
+    }
+  });
+
+  simplifiedColumns.forEach((column) => {
+    column.zones = simplifyColumnTree(column.zones, tolerance);
+  });
+
+  return simplifiedColumns;
+}
+
+function generateColumnTree(zones, tolerance = 0.1) {
+  const columns = [];
+
+  zones.forEach((zone) => {
+    if (zone.type === "block") {
+      const left = zone.rect.left;
+      const right = zone.rect.right;
+      const width = zone.rect.width;
+      const toleranceValue = width * tolerance;
+
+      let column = columns.find(
+        (col) =>
+          Math.abs(col.rect.left - left) <= toleranceValue &&
+          Math.abs(col.rect.right - right) <= toleranceValue
+      );
+
+      if (!column) {
+        column = {
+          type: "column",
+          rect: { left, right },
+          zones: [],
+        };
+        columns.push(column);
+      }
+
+      column.zones.push(zone);
+
+      if (zone.children && zone.children.length > 0) {
+        const childColumns = generateColumnTree(zone.children, tolerance);
+        childColumns.forEach((childColumn) => {
+          let column = columns.find(
+            (col) =>
+              Math.abs(col.rect.left - childColumn.rect.left) <=
+                toleranceValue &&
+              Math.abs(col.rect.right - childColumn.rect.right) <=
+                toleranceValue
+          );
+
+          if (!column) {
+            column = {
+              type: "column",
+              rect: childColumn.rect,
+              zones: [],
+            };
+            columns.push(column);
+          }
+
+          column.zones.push(...childColumn.zones);
+        });
+      }
+    }
+  });
+
+  return columns;
+}
 
 async function fetchPageData(url) {
   const browser = await puppeteer.launch();
-  console.log("launch");
   const page = await browser.newPage();
-  console.log("page");
   await page.goto(url, { timeout: 0, waitUntil: "domcontentloaded" });
-  console.log("goto");
 
   const bodyZone = await page.evaluate(() => {
+    const tagsToRemove = [
+      "script",
+      "style",
+      "iframe",
+      "noscript",
+      "header",
+      "head",
+      "nav",
+      "footer",
+    ];
+    tagsToRemove.forEach((tag) => {
+      const elements = document.querySelectorAll(tag);
+      elements.forEach((element) => element.remove());
+    });
+
     function cleanText(text) {
       return text.replace(/\s+/g, " ").trim();
     }
@@ -70,13 +166,16 @@ async function fetchPageData(url) {
     return {
       type: "block",
       tag: "body",
-      text: "", // Не добавляем текст из элемента body
+      text: "",
       rect: getRect(document.body),
       children: generateZoneTree(document.body),
     };
   });
 
-  console.log(JSON.stringify(bodyZone, null, 2));
+  const columns = generateColumnTree(bodyZone.children);
+
+  fs.writeFileSync("./html.txt", JSON.stringify(columns, null, 2));
+  // console.log(JSON.stringify(columns, null, 2));
   await browser.close();
 }
 
