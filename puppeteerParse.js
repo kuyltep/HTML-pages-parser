@@ -41,6 +41,26 @@ function findMainContentColumn(columns) {
   return mainColumn;
 }
 
+function createTextFromColumn(column) {
+  const uniqueTexts = new Set();
+  let text = "";
+  column.zones.forEach((zone) => {
+    if (zone.text.length) {
+      text += `${zone.text}\n`;
+    }
+    uniqueTexts.add(zone.text);
+    if (zone.children.length) {
+      zone.children.forEach((child) => {
+        if (child.text.length) {
+          uniqueTexts.add(child.text);
+          text += `${child.text}\n`;
+        }
+      });
+    }
+  });
+  return text;
+}
+
 function generateColumnTree(zones, tolerance = 0.1) {
   const columns = [];
 
