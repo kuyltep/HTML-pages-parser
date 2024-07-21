@@ -1,32 +1,6 @@
 import puppeteer from "puppeteer";
 import * as fs from "fs";
 
-function simplifyColumnTree(columns, tolerance = 0.1) {
-  const simplifiedColumns = [];
-
-  columns.forEach((column) => {
-    const width = column.rect.right - column.rect.left;
-    const toleranceValue = width * tolerance;
-
-    const parentColumn = simplifiedColumns.find(
-      (col) =>
-        (Math.abs(col.rect.left - column.rect.left) <= toleranceValue &&
-          Math.abs(col.rect.right - column.rect.right) <= toleranceValue) ||
-        (Math.abs(col.rect.left - column.rect.left) >= toleranceValue &&
-          Math.abs(col.rect.right - column.rect.right) >= toleranceValue)
-    );
-
-    if (parentColumn) {
-      console.log(simplifiedColumns);
-      parentColumn.zones.push(...column.zones);
-    } else {
-      simplifiedColumns.push(column);
-    }
-  });
-
-  return simplifiedColumns;
-}
-
 function calculateColumnWeight(column) {
   console.log(column);
   if (column.zones.length === 0) {
