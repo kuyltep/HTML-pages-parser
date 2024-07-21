@@ -2,7 +2,6 @@ import puppeteer from "puppeteer";
 import * as fs from "fs";
 
 function calculateColumnWeight(column) {
-  console.log(column);
   if (column.zones.length === 0) {
     return column.text.split(" ").length;
   }
@@ -20,7 +19,7 @@ function calculateZoneWeight(zone) {
     return zone.text.split(" ").length;
   }
 
-  let weight = 0;
+  let weight = zone.text.split(" ").length;
   zone.children.forEach((child) => {
     weight += calculateZoneWeight(child);
   });
