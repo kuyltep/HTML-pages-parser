@@ -10,24 +10,62 @@ function simplifyColumnTree(columns, tolerance = 0.1) {
 
     const parentColumn = simplifiedColumns.find(
       (col) =>
-        (Math.abs(col.rect.left - left) <= toleranceValue &&
-          Math.abs(col.rect.right - right) <= toleranceValue) ||
-        (Math.abs(col.rect.left - left) >= toleranceValue &&
-          Math.abs(col.rect.right - right) >= toleranceValue)
+        (Math.abs(col.rect.left - column.rect.left) <= toleranceValue &&
+          Math.abs(col.rect.right - column.rect.right) <= toleranceValue) ||
+        (Math.abs(col.rect.left - column.rect.left) >= toleranceValue &&
+          Math.abs(col.rect.right - column.rect.right) >= toleranceValue)
     );
 
     if (parentColumn) {
+      console.log(simplifiedColumns);
       parentColumn.zones.push(...column.zones);
     } else {
       simplifiedColumns.push(column);
     }
   });
 
-  simplifiedColumns.forEach((column) => {
-    column.zones = simplifyColumnTree(column.zones, tolerance);
+  return simplifiedColumns;
+}
+
+function calculateColumnWeight(column) {
+  console.log(column);
+  if (column.zones.length === 0) {
+    return column.text.split(" ").length;
+  }
+
+  let weight = 0;
+  column.zones.forEach((zone) => {
+    weight += calculateZoneWeight(zone);
   });
 
-  return simplifiedColumns;
+  return weight;
+}
+
+function calculateZoneWeight(zone) {
+  if (zone.children.length === 0) {
+    return zone.text.split(" ").length;
+  }
+
+  let weight = 0;
+  zone.children.forEach((child) => {
+    weight += calculateZoneWeight(child);
+  });
+  return weight;
+}
+
+function findMainContentColumn(columns) {
+  let maxWeight = 0;
+  let mainColumn = null;
+
+  columns.forEach((column) => {
+    const weight = calculateColumnWeight(column);
+    if (weight > maxWeight) {
+      maxWeight = weight;
+      mainColumn = column;
+    }
+  });
+
+  return mainColumn;
 }
 
 function generateColumnTree(zones, tolerance = 0.1) {
@@ -177,8 +215,8 @@ async function fetchPageData(url) {
   });
 
   const columns = generateColumnTree(bodyZone.children);
-
-  fs.writeFileSync("./html.txt", JSON.stringify(columns, null, 2));
+  const mainColumn = findMainContentColumn(columns);
+  fs.writeFileSync("./html.txt", JSON.stringify(mainColumn, null, 2));
   // console.log(JSON.stringify(columns, null, 2));
   await browser.close();
 }
