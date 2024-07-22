@@ -127,11 +127,11 @@ function generateColumnTree(zones, tolerance = 0.1) {
 
 async function fetchPageData(url) {
   const browser = await puppeteer.launch({
-    defaultViewport: null,
-    args: ["--window-size=1920,1080"],
+    defaultViewport: false,
+    args: ["--window-size=425,700"],
   });
   const page = await browser.newPage();
-  await page.setViewport({ width: 1920, height: 1080 });
+  await page.setViewport({ width: 425, height: 700 });
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
   );
@@ -155,6 +155,10 @@ async function fetchPageData(url) {
       "canvas",
       "figcaption",
       "aside",
+      "recommend",
+      "articles",
+      "banner",
+      "menu",
     ];
     tagsToRemove.forEach((tag) => {
       const elements = document.querySelectorAll(tag);
@@ -224,7 +228,8 @@ async function fetchPageData(url) {
         let isRemoved = false;
 
         const removedClassNames = [
-          "widget",
+          "_widget",
+          "faq",
           "footer",
           "uplp-list",
           "navbar",
@@ -242,6 +247,7 @@ async function fetchPageData(url) {
           "join",
           "aside",
           "post-blocks",
+          "author",
         ];
         removedClassNames.forEach((substring) => {
           const className = child.className.baseVal || child.className;
@@ -318,5 +324,5 @@ async function fetchPageData(url) {
 }
 
 fetchPageData(
-  "https://mpost.io/qcp-capital-market-anticipates-breakthrough-ahead-of-us-presidential-election-stronger-confidence-in-year-end-rebound/"
+  "https://www.nerdwallet.com/article/investing/best-bitcoin-cryptocurrency-wallet/"
 );
