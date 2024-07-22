@@ -1,129 +1,9 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import * as fs from "fs";
+import removeElementsByClassName from "./modules/removeElementsByClassName";
 
 puppeteer.use(StealthPlugin());
-
-function calculateColumnWeight(column) {
-  if (column.zones.length === 0) {
-    return column.text.split(" ").length;
-  }
-
-  let weight = 0;
-  column.zones.forEach((zone) => {
-    weight += calculateZoneWeight(zone);
-  });
-
-  return weight;
-}
-
-function calculateZoneWeight(zone) {
-  if (zone.children.length === 0) {
-    return zone.text.split(" ").length;
-  }
-
-  let weight = zone.text.split(" ").length;
-  zone.children.forEach((child) => {
-    weight += calculateZoneWeight(child);
-  });
-  return weight;
-}
-
-function findMainContentColumn(columns) {
-  let maxWeight = 0;
-  let mainColumn = null;
-
-  columns.forEach((column) => {
-    const weight = calculateColumnWeight(column);
-    if (weight > maxWeight) {
-      maxWeight = weight;
-      mainColumn = column;
-    }
-  });
-
-  return mainColumn;
-}
-
-function createTextFromColumn(column) {
-  const uniqueTexts = new Set();
-  let text = "";
-  column.zones.forEach((zone) => {
-    if (zone.text.length) {
-      uniqueTexts.add(zone.text);
-    }
-    if (zone.children.length) {
-      zone.children.forEach((child) => {
-        if (child.text.length) {
-          uniqueTexts.add(child.text);
-        }
-      });
-    }
-  });
-
-  uniqueTexts.forEach((value) => {
-    text += `${value}\n`;
-  });
-
-  return text;
-}
-
-function generateColumnTree(zones, tolerance = 0.1) {
-  const columns = [];
-
-  zones.forEach((zone) => {
-    if (zone.type === "block") {
-      const left = zone.rect.left;
-      const right = zone.rect.right;
-      const width = zone.rect.width;
-      const toleranceValue = width * tolerance;
-
-      let column = columns.find(
-        (col) =>
-          (Math.abs(col.rect.left - left) <= toleranceValue &&
-            Math.abs(col.rect.right - right) <= toleranceValue) ||
-          (Math.abs(col.rect.left - left) >= toleranceValue &&
-            Math.abs(col.rect.right - right) >= toleranceValue)
-      );
-
-      if (!column) {
-        column = {
-          type: "column",
-          rect: { left, right },
-          zones: [],
-        };
-        columns.push(column);
-      }
-
-      column.zones.push(zone);
-
-      if (zone.children && zone.children.length > 0) {
-        const childColumns = generateColumnTree(zone.children, tolerance);
-        childColumns.forEach((childColumn) => {
-          let column = columns.find(
-            (col) =>
-              Math.abs(col.rect.left - childColumn.rect.left) <=
-                toleranceValue &&
-              Math.abs(col.rect.right - childColumn.rect.right) <=
-                toleranceValue
-          );
-
-          if (!column) {
-            column = {
-              type: "column",
-              rect: childColumn.rect,
-              zones: [],
-            };
-            columns.push(column);
-          }
-
-          column.zones.push(...childColumn.zones);
-        });
-      }
-    }
-  });
-
-  return columns;
-}
 
 async function fetchPageData(url) {
   const browser = await puppeteer.launch({
@@ -225,40 +105,7 @@ async function fetchPageData(url) {
       const zones = [];
 
       Array.from(element.children).forEach((child) => {
-        let isRemoved = false;
-
-        const removedClassNames = [
-          "_widget",
-          "faq",
-          "footer",
-          "uplp-list",
-          "navbar",
-          "hidden",
-          "header",
-          "sidebar",
-          "related",
-          "want-to-know",
-          "sponsor",
-          "brief",
-          "social",
-          "tags",
-          "self-stretch",
-          "slider",
-          "join",
-          "aside",
-          "post-blocks",
-          "author",
-        ];
-        removedClassNames.forEach((substring) => {
-          const className = child.className.baseVal || child.className;
-          if (
-            typeof className === "string" &&
-            className.includes(substring) &&
-            !child.tagName.toLowerCase().includes("h")
-          ) {
-            isRemoved = true;
-          }
-        });
+        let isRemoved = removeElementsByClassName(child);
 
         if (isRemoved) {
           return;
@@ -318,11 +165,11 @@ async function fetchPageData(url) {
   const columns = generateColumnTree(bodyZone.children);
   const mainColumn = findMainContentColumn(columns);
   const text = createTextFromColumn(mainColumn);
-  // fs.writeFileSync("./html.txt", JSON.stringify(columns, null, 2));
-  fs.writeFileSync("./html.txt", text);
   await browser.close();
+  console.log(JSON.stringify(text, null, 2));
+  return JSON.stringify(text, null, 2);
 }
 
 fetchPageData(
-  "https://www.nerdwallet.com/article/investing/best-bitcoin-cryptocurrency-wallet/"
+  "https://cryptocloud.plus/en/blog/the-best-cryptocurrency-wallets"
 );
