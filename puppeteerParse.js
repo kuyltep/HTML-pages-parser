@@ -136,6 +136,7 @@ async function fetchPageData(url) {
       "head",
       "nav",
       "footer",
+      "header",
       "figure",
       "form",
       "video",
@@ -208,6 +209,7 @@ async function fetchPageData(url) {
           "uplp-list",
           "navbar",
           "hidden",
+          "header",
         ];
         removedClassNames.forEach((substring) => {
           const className = child.className.baseVal || child.className;
@@ -237,7 +239,10 @@ async function fetchPageData(url) {
               tag: tagName,
               text: tagName === "div" ? "" : textContent,
               rect: rect,
-              children: generateZoneTree(child),
+              children:
+                tagName === "p" || tagName === "li"
+                  ? []
+                  : generateZoneTree(child),
             });
           }
         } else if (isInline && textContent) {
@@ -271,10 +276,11 @@ async function fetchPageData(url) {
   const columns = generateColumnTree(bodyZone.children);
   const mainColumn = findMainContentColumn(columns);
   const text = createTextFromColumn(mainColumn);
+  // fs.writeFileSync("./html.txt", JSON.stringify(mainColumn, null, 2));
   fs.writeFileSync("./html.txt", text);
   await browser.close();
 }
 
 fetchPageData(
-  "https://decrypt.co/240617/this-week-in-crypto-games-hamster-kombat-trump-pixelverse-ubisoft/"
+  "https://blockworks.co/news/on-the-margin-newsletter-digital-asset-compliance/"
 );
