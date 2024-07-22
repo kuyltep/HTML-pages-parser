@@ -46,18 +46,21 @@ function createTextFromColumn(column) {
   let text = "";
   column.zones.forEach((zone) => {
     if (zone.text.length) {
-      text += `${zone.text}\n`;
+      uniqueTexts.add(zone.text);
     }
-    uniqueTexts.add(zone.text);
     if (zone.children.length) {
       zone.children.forEach((child) => {
         if (child.text.length) {
           uniqueTexts.add(child.text);
-          text += `${child.text}\n`;
         }
       });
     }
   });
+
+  uniqueTexts.forEach((value) => {
+    text += `${value}\n`;
+  });
+
   return text;
 }
 
@@ -130,10 +133,14 @@ async function fetchPageData(url) {
       "style",
       "iframe",
       "noscript",
-      "header",
       "head",
       "nav",
       "footer",
+      "figure",
+      "form",
+      "video",
+      "canvas",
+      "figcaption",
     ];
     tagsToRemove.forEach((tag) => {
       const elements = document.querySelectorAll(tag);
@@ -155,10 +162,64 @@ async function fetchPageData(url) {
       };
     }
 
+    function isBlockElement(tagName) {
+      const blockElements = [
+        "address",
+        "article",
+        "aside",
+        "blockquote",
+        "dd",
+        "div",
+        "dl",
+        "dt",
+        "fieldset",
+        "figure",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "header",
+        "li",
+        "main",
+        "ol",
+        "output",
+        "p",
+        "pre",
+        "section",
+        "table",
+        "tfoot",
+        "ul",
+      ];
+
+      return blockElements.includes(tagName);
+    }
+
     function generateZoneTree(element) {
       const zones = [];
 
       Array.from(element.children).forEach((child) => {
+        let isRemoved = false;
+
+        const removedClassNames = [
+          "widget",
+          "footer",
+          "uplp-list",
+          "navbar",
+          "hidden",
+        ];
+        removedClassNames.forEach((substring) => {
+          const className = child.className.baseVal || child.className;
+          if (typeof className === "string" && className.includes(substring)) {
+            isRemoved = true;
+          }
+        });
+
+        if (isRemoved) {
+          return;
+        }
+
         const display = getComputedStyle(child).display;
         const tagName = child.tagName.toLowerCase();
         const textContent = cleanText(child.textContent);
@@ -209,11 +270,11 @@ async function fetchPageData(url) {
 
   const columns = generateColumnTree(bodyZone.children);
   const mainColumn = findMainContentColumn(columns);
-  fs.writeFileSync("./html.txt", JSON.stringify(mainColumn, null, 2));
-  // console.log(JSON.stringify(columns, null, 2));
+  const text = createTextFromColumn(mainColumn);
+  fs.writeFileSync("./html.txt", text);
   await browser.close();
 }
 
 fetchPageData(
-  "https://dailyhodl.com/2024/07/20/one-low-cap-altcoin-on-the-verge-of-a-big-breakout-says-analyst-michael-van-de-poppe-here-are-his-targets/"
+  "https://decrypt.co/240617/this-week-in-crypto-games-hamster-kombat-trump-pixelverse-ubisoft/"
 );
