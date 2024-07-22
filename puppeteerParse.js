@@ -1,5 +1,8 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import * as fs from "fs";
+
+puppeteer.use(StealthPlugin());
 
 function calculateColumnWeight(column) {
   if (column.zones.length === 0) {
@@ -123,8 +126,13 @@ function generateColumnTree(zones, tolerance = 0.1) {
 }
 
 async function fetchPageData(url) {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ["--window-size=1440"],
+  });
   const page = await browser.newPage();
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+  );
   await page.goto(url, { timeout: 0, waitUntil: "domcontentloaded" });
 
   const bodyZone = await page.evaluate(() => {
@@ -192,6 +200,7 @@ async function fetchPageData(url) {
         "table",
         "tfoot",
         "ul",
+        "audio",
       ];
 
       return blockElements.includes(tagName);
@@ -230,14 +239,14 @@ async function fetchPageData(url) {
           display === "block" || (display === "" && isBlockElement(tagName));
         const isInline =
           display === "inline" || (display === "" && !isBlockElement(tagName));
-
+        const emptyTagNames = ["div", "article", "section", "main"];
         if (isBlock && textContent) {
           const rect = getRect(child);
           if (rect.height > 0) {
             zones.push({
               type: "block",
               tag: tagName,
-              text: tagName === "div" ? "" : textContent,
+              text: emptyTagNames.includes(tagName) ? "" : textContent,
               rect: rect,
               children:
                 tagName === "p" || tagName === "li"
@@ -276,8 +285,8 @@ async function fetchPageData(url) {
   const columns = generateColumnTree(bodyZone.children);
   const mainColumn = findMainContentColumn(columns);
   const text = createTextFromColumn(mainColumn);
-  // fs.writeFileSync("./html.txt", JSON.stringify(mainColumn, null, 2));
-  fs.writeFileSync("./html.txt", text);
+  fs.writeFileSync("./html.txt", JSON.stringify(columns, null, 2));
+  // fs.writeFileSync("./html.txt", text);
   await browser.close();
 }
 
