@@ -127,9 +127,11 @@ function generateColumnTree(zones, tolerance = 0.1) {
 
 async function fetchPageData(url) {
   const browser = await puppeteer.launch({
-    args: ["--window-size=1440"],
+    defaultViewport: null,
+    args: ["--window-size=1920,1080"],
   });
   const page = await browser.newPage();
+  await page.setViewport({ width: 1920, height: 1080 });
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
   );
@@ -138,6 +140,8 @@ async function fetchPageData(url) {
   const bodyZone = await page.evaluate(() => {
     const tagsToRemove = [
       "script",
+      "svg",
+      "button",
       "style",
       "iframe",
       "noscript",
@@ -150,6 +154,7 @@ async function fetchPageData(url) {
       "video",
       "canvas",
       "figcaption",
+      "aside",
     ];
     tagsToRemove.forEach((tag) => {
       const elements = document.querySelectorAll(tag);
@@ -161,13 +166,19 @@ async function fetchPageData(url) {
     }
 
     function getRect(element) {
+      if (!element) {
+        throw new Error("Element is null or undefined");
+      }
+
       const rect = element.getBoundingClientRect();
+
       return {
         left: rect.left,
         top: rect.top,
         width: rect.width,
         height: rect.height,
         right: rect.left + rect.width,
+        bottom: rect.top + rect.height,
       };
     }
 
@@ -219,10 +230,26 @@ async function fetchPageData(url) {
           "navbar",
           "hidden",
           "header",
+          "sidebar",
+          "related",
+          "want-to-know",
+          "sponsor",
+          "brief",
+          "social",
+          "tags",
+          "self-stretch",
+          "slider",
+          "join",
+          "aside",
+          "post-blocks",
         ];
         removedClassNames.forEach((substring) => {
           const className = child.className.baseVal || child.className;
-          if (typeof className === "string" && className.includes(substring)) {
+          if (
+            typeof className === "string" &&
+            className.includes(substring) &&
+            !child.tagName.toLowerCase().includes("h")
+          ) {
             isRemoved = true;
           }
         });
@@ -285,11 +312,11 @@ async function fetchPageData(url) {
   const columns = generateColumnTree(bodyZone.children);
   const mainColumn = findMainContentColumn(columns);
   const text = createTextFromColumn(mainColumn);
-  fs.writeFileSync("./html.txt", JSON.stringify(columns, null, 2));
-  // fs.writeFileSync("./html.txt", text);
+  // fs.writeFileSync("./html.txt", JSON.stringify(columns, null, 2));
+  fs.writeFileSync("./html.txt", text);
   await browser.close();
 }
 
 fetchPageData(
-  "https://blockworks.co/news/on-the-margin-newsletter-digital-asset-compliance/"
+  "https://mpost.io/qcp-capital-market-anticipates-breakthrough-ahead-of-us-presidential-election-stronger-confidence-in-year-end-rebound/"
 );
