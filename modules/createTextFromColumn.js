@@ -1,4 +1,4 @@
-export function createTextFromColumn(column) {
+export default function createTextFromColumn(column) {
   const uniqueTexts = new Set();
   let text = "";
   column.zones.forEach((zone) => {

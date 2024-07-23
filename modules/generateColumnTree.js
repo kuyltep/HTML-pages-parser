@@ -1,4 +1,4 @@
-function generateColumnTree(zones, tolerance = 0.1) {
+export default function generateColumnTree(zones, tolerance = 0.1) {
   const columns = [];
 
   zones.forEach((zone) => {

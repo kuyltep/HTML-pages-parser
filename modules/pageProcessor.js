@@ -1,20 +1,6 @@
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import * as fs from "fs";
 import removeElementsByClassName from "./modules/removeElementsByClassName";
 
-puppeteer.use(StealthPlugin());
-
-async function fetchPageData(url) {
-  const browser = await puppeteer.launch({
-    defaultViewport: false,
-    args: ["--window-size=425,700"],
-  });
-  const page = await browser.newPage();
-  await page.setViewport({ width: 425, height: 700 });
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-  );
+export default async function processPage(page, url) {
   await page.goto(url, { timeout: 0, waitUntil: "domcontentloaded" });
 
   const bodyZone = await page.evaluate(() => {
@@ -79,14 +65,5 @@ async function fetchPageData(url) {
     };
   });
 
-  const columns = generateColumnTree(bodyZone.children);
-  const mainColumn = findMainContentColumn(columns);
-  const text = createTextFromColumn(mainColumn);
-  await browser.close();
-  console.log(JSON.stringify(text, null, 2));
-  return JSON.stringify(text, null, 2);
+  return bodyZone;
 }
-
-fetchPageData(
-  "https://cryptocloud.plus/en/blog/the-best-cryptocurrency-wallets"
-);
