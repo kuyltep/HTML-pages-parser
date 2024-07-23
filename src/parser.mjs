@@ -54,6 +54,16 @@ export async function fetchPageData(url) {
       return isRemoved;
     }
 
+    function removeFixedPositionElements(element) {
+      const elements = element.querySelectorAll("*");
+      elements.forEach((el) => {
+        const style = window.getComputedStyle(el);
+        if (style.position === "fixed" || style.position === "sticky") {
+          el.remove();
+        }
+      });
+    }
+
     function removeUselessTags(document) {
       const tagsToRemove = [
         "script",
@@ -143,6 +153,7 @@ export async function fetchPageData(url) {
 
     function generateZoneTree(element) {
       const zones = [];
+      removeFixedPositionElements(element);
 
       Array.from(element.children).forEach((child) => {
         let isRemoved = removeELementsByClassName(child);
