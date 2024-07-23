@@ -33,6 +33,13 @@ export async function fetchPageData(url) {
         "aside",
         "post-blocks",
         "author",
+        "advertisement",
+        "related",
+        "promo",
+        "advertisement",
+        "promo",
+        "subscribe",
+        "newsletter",
       ];
       removedClassNames.forEach((substring) => {
         const className = child.className.baseVal || child.className;
