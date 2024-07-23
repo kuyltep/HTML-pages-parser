@@ -3,7 +3,7 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 puppeteer.use(StealthPlugin());
 
-export default async function launchBrowser() {
+export async function launchBrowser() {
   const browser = await puppeteer.launch({
     defaultViewport: false,
     args: ["--window-size=425,700"],

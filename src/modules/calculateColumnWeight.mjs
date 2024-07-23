@@ -1,4 +1,4 @@
-import calculateZoneWeight from "./calculateZoneWeight";
+import calculateZoneWeight from "./calculateZoneWeight.mjs";
 
 export default function calculateColumnWeight(column) {
   if (column.zones.length === 0) {

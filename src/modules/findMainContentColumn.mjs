@@ -1,4 +1,4 @@
-import calculateColumnWeight from "./calculateColumnWeight";
+import calculateColumnWeight from "./calculateColumnWeight.mjs";
 
 export default function findMainContentColumn(columns) {
   let maxWeight = 0;

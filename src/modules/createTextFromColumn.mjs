@@ -15,7 +15,7 @@ export default function createTextFromColumn(column) {
   });
 
   uniqueTexts.forEach((value) => {
-    text += `${value}\n`;
+    text += `${value}`;
   });
 
   return text;
