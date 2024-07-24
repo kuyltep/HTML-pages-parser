@@ -13,6 +13,7 @@ export async function fetchPageData(url) {
       let isRemoved = false;
       const removedClassNames = [
         "_widget",
+        "widget_",
         "faq",
         "footer",
         "uplp-list",
@@ -40,6 +41,12 @@ export async function fetchPageData(url) {
         "promo",
         "subscribe",
         "newsletter",
+        "found",
+        "btn",
+        "button",
+        "hot",
+        "share",
+        "modal",
       ];
       removedClassNames.forEach((substring) => {
         const className = child.className.baseVal || child.className;
@@ -76,7 +83,6 @@ export async function fetchPageData(url) {
         "nav",
         "footer",
         "header",
-        "figure",
         "form",
         "video",
         "canvas",
@@ -224,6 +230,4 @@ export async function fetchPageData(url) {
   }
 }
 
-fetchPageData(
-  "https://beincrypto.com/kamala-harris-explores-crypto-bitcoin-conference-2024/"
-);
+fetchPageData("https://coingape.com/best-telegram-crypto-channels-list/");
