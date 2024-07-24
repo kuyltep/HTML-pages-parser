@@ -212,15 +212,18 @@ export async function fetchPageData(url) {
       children: generateZoneTree(document.body),
     };
   });
-
-  const columns = generateColumnTree(bodyZone.children);
-  const mainColumn = findMainContentColumn(columns);
-  const text = createTextFromColumn(mainColumn);
-  await browser.close();
-  console.log(JSON.stringify(text, null, 2));
-  return JSON.stringify(text, null, 2);
+  if (bodyZone.children.length) {
+    const columns = generateColumnTree(bodyZone.children);
+    const mainColumn = findMainContentColumn(columns);
+    const text = createTextFromColumn(mainColumn);
+    await browser.close();
+    console.log(JSON.stringify(text, null, 2));
+    return JSON.stringify(text, null, 2);
+  } else {
+    return "Error in read data from page";
+  }
 }
 
 fetchPageData(
-  "https://www.coindesk.com/markets/2024/07/23/bitcoin-nears-66k-as-mt-gox-moves-130m-to-bitstamp/"
+  "https://beincrypto.com/kamala-harris-explores-crypto-bitcoin-conference-2024/"
 );
