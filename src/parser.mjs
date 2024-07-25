@@ -223,11 +223,13 @@ export async function fetchPageData(url) {
     const mainColumn = findMainContentColumn(columns);
     const text = createTextFromColumn(mainColumn);
     await browser.close();
-    console.log(JSON.stringify(text, null, 2));
+    // console.log(JSON.stringify(text, null, 2));
     return JSON.stringify(text, null, 2);
   } else {
     return "Error in read data from page";
   }
 }
 
-fetchPageData("https://coingape.com/best-telegram-crypto-channels-list/");
+const data = await fetchPageData(
+  "https://decrypt.co/241459/machines-arena-airdrop-campaign-ethereum-ronin"
+);
