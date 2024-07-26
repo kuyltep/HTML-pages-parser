@@ -5,10 +5,15 @@ puppeteer.use(StealthPlugin());
 
 export async function launchBrowser() {
   const { browser, page } = await connect({
-    headless: "auto",
+    headless: true,
     fingerprint: true,
     turnstile: true,
-    args: ["--window-size=425,700", "--disable-logging"],
+    args: [
+      "--window-size=425,700",
+      `--ignore-certificate-errors`,
+      `--no-sandbox`,
+      `--disable-setuid-sandbox`,
+    ],
   });
 
   await page.setViewport({ width: 425, height: 700 });

@@ -5,10 +5,10 @@ import { launchBrowser } from "./modules/browser.mjs";
 
 export async function fetchPageData(url) {
   const { browser, page } = await launchBrowser();
-
-  await page.goto(url, { timeout: 0, waitUntil: "domcontentloaded" });
-
-  const bodyZone = await page.evaluate(() => {
+  await page.goto(url, { timeout: 0, waitUntil: "networkidle2" });
+  await page.waitForSelector("body");
+  const body = await page.$("body");
+  const bodyZone = await body.evaluate(() => {
     function removeELementsByClassName(child) {
       let isRemoved = false;
       const removedClassNames = [
@@ -56,6 +56,7 @@ export async function fetchPageData(url) {
           !child.tagName.toLowerCase().includes("h")
         ) {
           isRemoved = true;
+          console.log(child.className);
         }
       });
       return isRemoved;
@@ -231,5 +232,5 @@ export async function fetchPageData(url) {
 }
 
 const data = await fetchPageData(
-  "https://decrypt.co/241459/machines-arena-airdrop-campaign-ethereum-ronin"
+  "https://dailyhodl.com/2024/07/21/interest-payments-on-us-national-debt-will-shatter-1140000000000-this-year-eating-76-of-all-income-taxes-collected-report/"
 );
