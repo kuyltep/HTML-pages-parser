@@ -1,37 +1,11 @@
-import puppeteer from "puppeteer-extra";
 import generateColumnTree from "./modules/generateColumnTree.mjs";
 import findMainContentColumn from "./modules/findMainContentColumn.mjs";
 import createTextFromColumn from "./modules/createTextFromColumn.mjs";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import createBrowser from "./modules/puppBrowser.mjs";
 
-puppeteer.use(StealthPlugin());
 export async function fetchDataFromPage(url) {
   try {
-    const browser = await puppeteer.launch({
-      headless: false,
-      args: ["--window-size=425,700", `--ignore-certificate-errors`],
-    });
-    const page = await browser.newPage();
-    await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, "webdriver", {
-        get: () => false,
-      });
-      const patchedRTCConfig = {
-        iceServers: [{ urls: "stun:stun.example.org" }],
-      };
-      Object.defineProperty(window, "RTCConfiguration", {
-        writable: false,
-        value: patchedRTCConfig,
-      });
-    });
-    await page.setExtraHTTPHeaders({
-      referer: "www.google.com",
-      accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-      "accept-language": "en-US,en;q=0.9",
-      "cache-control": "max-age=0",
-      "accept-encoding": "gzip, deflate, br",
-    });
+    const { page, browser } = await createBrowser();
 
     const domainsWithCloudflare = ["beincrypto.com"];
     let isUrlWithCloudflare = domainsWithCloudflare.some((domain) => {
@@ -272,6 +246,4 @@ export async function fetchDataFromPage(url) {
     console.error("Произошла ошибка:", error);
   }
 }
-fetchDataFromPage(
-  "https://www.dlnews.com/articles/snapshot/sec-seeks-to-amend-binance-case-list-that-includes-solana/"
-);
+fetchDataFromPage("https://beincrypto.com/monero-xmr-price-may-lose-uptrend/");
