@@ -1,18 +1,29 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
 import generateColumnTree from "./modules/generateColumnTree.mjs";
 import findMainContentColumn from "./modules/findMainContentColumn.mjs";
 import createTextFromColumn from "./modules/createTextFromColumn.mjs";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
+puppeteer.use(StealthPlugin());
 export async function fetchDataFromPage(url) {
   try {
     const browser = await puppeteer.launch({
       headless: false,
-      args: ["--window-size=425,700", "--ignore-certificate-errors"],
+      args: ["--window-size=425,700", `--ignore-certificate-errors`],
     });
     const page = await browser.newPage();
-    await page.setUserAgent(
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
-    );
+    await page.evaluateOnNewDocument(() => {
+      Object.defineProperty(navigator, "webdriver", {
+        get: () => false,
+      });
+      const patchedRTCConfig = {
+        iceServers: [{ urls: "stun:stun.example.org" }],
+      };
+      Object.defineProperty(window, "RTCConfiguration", {
+        writable: false,
+        value: patchedRTCConfig,
+      });
+    });
     await page.setExtraHTTPHeaders({
       referer: "www.google.com",
       accept:
@@ -22,7 +33,19 @@ export async function fetchDataFromPage(url) {
       "accept-encoding": "gzip, deflate, br",
     });
 
-    await page.goto(url, { waitUntil: "domcontentloaded" });
+    const domainsWithCloudflare = ["beincrypto.com"];
+    let isUrlWithCloudflare = domainsWithCloudflare.some((domain) => {
+      return url.includes(domain);
+    });
+
+    if (isUrlWithCloudflare) {
+      await page.goto(
+        `https://webcache.googleusercontent.com/search?q=cache:${url}`,
+        { waitUntil: "domcontentloaded" }
+      );
+    } else {
+      await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
+    }
 
     const body = await page.$("body");
     const bodyZone = await body.evaluate(() => {
@@ -63,9 +86,10 @@ export async function fetchDataFromPage(url) {
         removedClassNames.forEach((substring) => {
           const className = child.className.baseVal || child.className;
           if (
-            typeof className === "string" &&
-            className.includes(substring) &&
-            !child.tagName.toLowerCase().includes("h")
+            (typeof className === "string" &&
+              className.includes(substring) &&
+              !child.tagName.toLowerCase().includes("h")) ||
+            (child.id && child.id.includes("google-cache-hdr"))
           ) {
             isRemoved = true;
             console.log(child.className);
@@ -249,5 +273,5 @@ export async function fetchDataFromPage(url) {
   }
 }
 fetchDataFromPage(
-  "https://beincrypto.com/why-is-the-crypto-market-down-today/"
+  "https://www.dlnews.com/articles/snapshot/sec-seeks-to-amend-binance-case-list-that-includes-solana/"
 );
