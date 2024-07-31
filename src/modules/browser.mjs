@@ -10,7 +10,9 @@ export async function launchBrowser() {
     fingerprint: true,
     turnstile: true,
     args: ["--window-size=425,700", `--ignore-certificate-errors`],
+    tr: true,
   });
+
   await page.setViewport({ width: 425, height: 700 });
 
   return { browser, page };
