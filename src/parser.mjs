@@ -32,7 +32,6 @@ export async function fetchPageData(url) {
           "uplp-list",
           "nav",
           "header",
-          "sidebar",
           "related",
           "want-to-know",
           "sponsor",
@@ -49,15 +48,12 @@ export async function fetchPageData(url) {
           "advertisement",
           "related",
           "promo",
-          "advertisement",
           "promo",
           "subscribe",
           "newsletter",
           "found",
           "btn",
           "button",
-          "hot",
-          "share",
           "modal",
         ];
         removedClassNames.forEach((substring) => {
