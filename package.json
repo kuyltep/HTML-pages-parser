@@ -7,7 +7,8 @@
     "puppeteer": "^22.13.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "puppeteer-real-browser": "^1.2.20"
+    "puppeteer-real-browser": "^1.2.20",
+    "user-agents": "^1.1.281"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.30",
