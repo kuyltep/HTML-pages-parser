@@ -246,5 +246,5 @@ export async function fetchPageData(url) {
 }
 
 const data = await fetchPageData(
-  "https://beincrypto.com/why-is-the-crypto-market-down-today/"
+  "https://www.theblock.co/post/307709/sen-marshall-withdraws-from-elizabeth-warren-crypto-bill"
 );

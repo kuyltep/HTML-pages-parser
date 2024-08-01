@@ -2,6 +2,7 @@ import generateColumnTree from "./modules/generateColumnTree.mjs";
 import findMainContentColumn from "./modules/findMainContentColumn.mjs";
 import createTextFromColumn from "./modules/createTextFromColumn.mjs";
 import createBrowser from "./modules/puppBrowser.mjs";
+import * as fs from "fs";
 
 export async function fetchDataFromPage(url) {
   try {
@@ -35,11 +36,11 @@ export async function fetchDataFromPage(url) {
           "header",
           "related",
           "want-to-know",
-          "sponsor",
           "brief",
           "social",
           "tags",
           "self-stretch",
+          "overflow-hidden",
           "slider",
           "join",
           "sign",
@@ -76,7 +77,8 @@ export async function fetchDataFromPage(url) {
         const elements = element.querySelectorAll("*");
         elements.forEach((el) => {
           const style = window.getComputedStyle(el);
-          if (style.position === "sticky") {
+          const fontSize = parseFloat(style.fontSize);
+          if (style.position === "sticky" || fontSize <= 10) {
             el.remove();
           }
         });
@@ -102,6 +104,9 @@ export async function fetchDataFromPage(url) {
           "articles",
           "banner",
           "menu",
+          "iframe",
+          "source",
+          "picture",
         ];
         tagsToRemove.forEach((tag) => {
           const elements = document.querySelectorAll(tag);
@@ -237,7 +242,7 @@ export async function fetchDataFromPage(url) {
       const mainColumn = findMainContentColumn(columns);
       const text = createTextFromColumn(mainColumn);
       await browser.close();
-      console.log(JSON.stringify(text, null, 2));
+      console.log(JSON.stringify(mainColumn, null, 2));
       return JSON.stringify(text, null, 2);
     } else {
       return "Error in read data from page";
@@ -246,4 +251,6 @@ export async function fetchDataFromPage(url) {
     console.error("Произошла ошибка:", error);
   }
 }
-fetchDataFromPage("https://beincrypto.com/monero-xmr-price-may-lose-uptrend/");
+fetchDataFromPage(
+  "https://www.theblock.co/post/307709/sen-marshall-withdraws-from-elizabeth-warren-crypto-bill"
+);
