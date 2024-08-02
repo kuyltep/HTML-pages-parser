@@ -3,6 +3,21 @@ import * as fs from "fs";
 export default function createTextFromColumn(column) {
   const uniqueTexts = new Set();
   let text = "";
+  function getTextFromChilds(child) {
+    if (child.text.length) {
+      const isBlock = isBlockElement(child.tag);
+      if (isBlock) {
+        uniqueTexts.add(`${child.text}\n\n`);
+      } else {
+        uniqueTexts.add(child.text);
+      }
+    }
+    if (child.children.length) {
+      child.children.forEach((oneChild) => {
+        getTextFromChilds(oneChild);
+      });
+    }
+  }
   column.zones.forEach((zone) => {
     if (zone.text.length) {
       const isBlock = isBlockElement(zone.tag);
@@ -14,14 +29,7 @@ export default function createTextFromColumn(column) {
     }
     if (zone.children.length) {
       zone.children.forEach((child) => {
-        if (child.text.length) {
-          const isBlock = isBlockElement(zone.tag);
-          if (isBlock) {
-            uniqueTexts.add(`${zone.text}\n\n`);
-          } else {
-            uniqueTexts.add(zone.text);
-          }
-        }
+        getTextFromChilds(child);
       });
     }
   });

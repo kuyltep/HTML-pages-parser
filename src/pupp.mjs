@@ -16,10 +16,15 @@ export async function fetchDataFromPage(url) {
     if (isUrlWithCloudflare) {
       await page.goto(
         `https://webcache.googleusercontent.com/search?q=cache:${url}`,
-        { waitUntil: "domcontentloaded" }
+        { waitUntil: "domcontentloaded", timeout: 30000 }
       );
+      await page.waitForNavigation({ waitUntil: "domcontentloaded" });
     } else {
-      await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${url}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+      await page.waitForNavigation({ waitUntil: "domcontentloaded" });
     }
 
     const body = await page.$("body");
@@ -27,12 +32,14 @@ export async function fetchDataFromPage(url) {
       function removeELementsByClassName(child) {
         let isRemoved = false;
         const removedClassNames = [
+          "popularRail",
           "_widget",
           "widget_",
           "faq",
           "footer",
           "uplp-list",
           "nav",
+          "copyright",
           "header",
           "related",
           "want-to-know",
@@ -40,6 +47,7 @@ export async function fetchDataFromPage(url) {
           "social",
           "tags",
           "self-stretch",
+          "Cookie",
           "overflow-hidden",
           "slider",
           "join",
@@ -53,6 +61,7 @@ export async function fetchDataFromPage(url) {
           "promo",
           "subscribe",
           "newsletter",
+          "recommend",
           "found",
           "btn",
           "button",
@@ -78,7 +87,12 @@ export async function fetchDataFromPage(url) {
         elements.forEach((el) => {
           const style = window.getComputedStyle(el);
           const fontSize = parseFloat(style.fontSize);
-          if (style.position === "sticky" || fontSize <= 10) {
+          const overflow = style.overflow;
+          if (
+            style.position === "sticky" ||
+            fontSize <= 12 ||
+            overflow === "hidden"
+          ) {
             el.remove();
           }
         });
@@ -100,13 +114,13 @@ export async function fetchDataFromPage(url) {
           "canvas",
           "figcaption",
           "aside",
-          "recommend",
-          "articles",
-          "banner",
           "menu",
           "iframe",
           "source",
           "picture",
+          "meta",
+          "link",
+          "base",
         ];
         tagsToRemove.forEach((tag) => {
           const elements = document.querySelectorAll(tag);
@@ -242,7 +256,7 @@ export async function fetchDataFromPage(url) {
       const mainColumn = findMainContentColumn(columns);
       const text = createTextFromColumn(mainColumn);
       await browser.close();
-      console.log(JSON.stringify(mainColumn, null, 2));
+      console.log(JSON.stringify(text, null, 2));
       return JSON.stringify(text, null, 2);
     } else {
       return "Error in read data from page";
@@ -251,6 +265,3 @@ export async function fetchDataFromPage(url) {
     console.error("Произошла ошибка:", error);
   }
 }
-fetchDataFromPage(
-  "https://www.theblock.co/post/307709/sen-marshall-withdraws-from-elizabeth-warren-crypto-bill"
-);
