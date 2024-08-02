@@ -1,4 +1,19 @@
 {
+  "name": "html-pages-parser",
+  "version": "0.0.1",
+  "description": "html pages parser module",
+  "main": "index.js",
+  "license": "ISC",
+  "author": "Vlad Petlyuk",
+  "keywords": [
+    "html",
+    "parser",
+    "pages"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kuyltep/HTML-pages-parser.git"
+  },
   "type": "module",
   "dependencies": {
     "@extractus/article-extractor": "^8.0.10",

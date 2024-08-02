@@ -1,44 +1,53 @@
-import generateColumnTree from "./modules/generateColumnTree.mjs";
-import findMainContentColumn from "./modules/findMainContentColumn.mjs";
-import createTextFromColumn from "./modules/createTextFromColumn.mjs";
-import { launchBrowser } from "./modules/browser.mjs";
-import axios from "axios";
+import generateColumnTree from "./src/modules/generateColumnTree.mjs";
+import findMainContentColumn from "./src/modules/findMainContentColumn.mjs";
+import createTextFromColumn from "./src/modules/createTextFromColumn.mjs";
+import createBrowser from "./src/modules/puppBrowser.mjs";
 
-export async function fetchPageData(url) {
+export async function fetchDataFromPage(url) {
   try {
-    const { browser, page } = await launchBrowser();
-    await page.setUserAgent(
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
-    );
-    await page.setExtraHTTPHeaders({
-      referer: "www.google.com",
-      accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-      "accept-language": "en-US,en;q=0.9",
-      "cache-control": "max-age=0",
-      "accept-encoding": "gzip, deflate, br",
+    const { page, browser } = await createBrowser();
+
+    const domainsWithCloudflare = ["beincrypto.com"];
+    let isUrlWithCloudflare = domainsWithCloudflare.some((domain) => {
+      return url.includes(domain);
     });
-    await page.goto(url, { timeout: 30000, waitUntil: "domcontentloaded" });
+
+    if (isUrlWithCloudflare) {
+      await page.goto(
+        `https://webcache.googleusercontent.com/search?q=cache:${url}`,
+        { waitUntil: "domcontentloaded", timeout: 30000 }
+      );
+      await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+    } else {
+      await page.goto(`${url}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+      await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+    }
 
     const body = await page.$("body");
     const bodyZone = await body.evaluate(() => {
       function removeELementsByClassName(child) {
         let isRemoved = false;
         const removedClassNames = [
+          "popularRail",
           "_widget",
           "widget_",
           "faq",
           "footer",
           "uplp-list",
           "nav",
+          "copyright",
           "header",
           "related",
           "want-to-know",
-          "sponsor",
           "brief",
           "social",
           "tags",
           "self-stretch",
+          "Cookie",
+          "overflow-hidden",
           "slider",
           "join",
           "sign",
@@ -51,6 +60,7 @@ export async function fetchPageData(url) {
           "promo",
           "subscribe",
           "newsletter",
+          "recommend",
           "found",
           "btn",
           "button",
@@ -59,9 +69,10 @@ export async function fetchPageData(url) {
         removedClassNames.forEach((substring) => {
           const className = child.className.baseVal || child.className;
           if (
-            typeof className === "string" &&
-            className.includes(substring) &&
-            !child.tagName.toLowerCase().includes("h")
+            (typeof className === "string" &&
+              className.includes(substring) &&
+              !child.tagName.toLowerCase().includes("h")) ||
+            (child.id && child.id.includes("google-cache-hdr"))
           ) {
             isRemoved = true;
             console.log(child.className);
@@ -74,7 +85,13 @@ export async function fetchPageData(url) {
         const elements = element.querySelectorAll("*");
         elements.forEach((el) => {
           const style = window.getComputedStyle(el);
-          if (style.position === "sticky") {
+          const fontSize = parseFloat(style.fontSize);
+          const overflow = style.overflow;
+          if (
+            style.position === "sticky" ||
+            fontSize <= 12 ||
+            overflow === "hidden"
+          ) {
             el.remove();
           }
         });
@@ -96,10 +113,13 @@ export async function fetchPageData(url) {
           "canvas",
           "figcaption",
           "aside",
-          "recommend",
-          "articles",
-          "banner",
           "menu",
+          "iframe",
+          "source",
+          "picture",
+          "meta",
+          "link",
+          "base",
         ];
         tagsToRemove.forEach((tag) => {
           const elements = document.querySelectorAll(tag);
@@ -241,10 +261,6 @@ export async function fetchPageData(url) {
       return "Error in read data from page";
     }
   } catch (error) {
-    return error;
+    console.error("Произошла ошибка:", error);
   }
 }
-
-const data = await fetchPageData(
-  "https://www.theblock.co/post/307709/sen-marshall-withdraws-from-elizabeth-warren-crypto-bill"
-);
