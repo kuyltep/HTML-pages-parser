@@ -1,9 +1,8 @@
-import generateColumnTree from "./src/modules/generateColumnTree.mjs";
-import findMainContentColumn from "./src/modules/findMainContentColumn.mjs";
-import createTextFromColumn from "./src/modules/createTextFromColumn.mjs";
-import createBrowser from "./src/modules/puppBrowser.mjs";
-
-export async function fetchDataFromPage(url) {
+const generateColumnTree = require("./src/modules/generateColumnTree.js");
+const findMainContentColumn = require("./src/modules/findMainContentColumn.js");
+const createTextFromColumn = require("./src/modules/createTextFromColumn.js");
+const createBrowser = require("./src/modules/puppBrowser.js");
+async function fetchDataFromPage(url) {
   try {
     const { page, browser } = await createBrowser();
 
@@ -15,13 +14,13 @@ export async function fetchDataFromPage(url) {
     if (isUrlWithCloudflare) {
       await page.goto(
         `https://webcache.googleusercontent.com/search?q=cache:${url}`,
-        { waitUntil: "domcontentloaded", timeout: 30000 }
+        { waitUntil: "domcontentloaded", timeout: 60000 }
       );
       await page.waitForNavigation({ waitUntil: "domcontentloaded" });
     } else {
       await page.goto(`${url}`, {
         waitUntil: "domcontentloaded",
-        timeout: 30000,
+        timeout: 60000,
       });
       await page.waitForNavigation({ waitUntil: "domcontentloaded" });
     }
@@ -255,7 +254,6 @@ export async function fetchDataFromPage(url) {
       const mainColumn = findMainContentColumn(columns);
       const text = createTextFromColumn(mainColumn);
       await browser.close();
-      console.log(JSON.stringify(text, null, 2));
       return JSON.stringify(text, null, 2);
     } else {
       return "Error in read data from page";
@@ -264,3 +262,5 @@ export async function fetchDataFromPage(url) {
     console.error("Произошла ошибка:", error);
   }
 }
+
+module.exports = fetchDataFromPage;
