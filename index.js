@@ -11,18 +11,33 @@ async function fetchDataFromPage(url) {
       return url.includes(domain);
     });
 
+    const withoutNavigation = ["coindesk.com"];
+
     if (isUrlWithCloudflare) {
       await page.goto(
         `https://webcache.googleusercontent.com/search?q=cache:${url}`,
         { waitUntil: "domcontentloaded", timeout: 60000 }
       );
-      await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+      await page.waitForNavigation({
+        waitUntil: "domcontentloaded",
+        timeout: 60000,
+      });
     } else {
       await page.goto(`${url}`, {
         waitUntil: "domcontentloaded",
         timeout: 60000,
       });
-      await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+    }
+
+    const isWithoutNavigation = withoutNavigation.some((domain) => {
+      return url.includes(domain);
+    });
+
+    if (!isWithoutNavigation) {
+      await page.waitForNavigation({
+        waitUntil: "domcontentloaded",
+        timeout: 60000,
+      });
     }
 
     const body = await page.$("body");
@@ -254,7 +269,7 @@ async function fetchDataFromPage(url) {
       const mainColumn = findMainContentColumn(columns);
       const text = createTextFromColumn(mainColumn);
       await browser.close();
-      return JSON.stringify(text, null, 2);
+      return text;
     } else {
       return "Error in read data from page";
     }
