@@ -5,7 +5,7 @@ puppeteer.use(StealthPlugin());
 async function createBrowser() {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ["--window-size=425,700", `--ignore-certificate-errors`],
+    args: ["--window-size=425,700", `--ignore-certificate-errors`, "--no-sandbox"],
   });
   const page = await browser.newPage();
   await page.evaluateOnNewDocument(() => {
