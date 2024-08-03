@@ -263,4 +263,4 @@ async function fetchDataFromPage(url) {
   }
 }
 
-module.exports = fetchDataFromPage;
+module.exports.fetchDataFromPage = fetchDataFromPage;
