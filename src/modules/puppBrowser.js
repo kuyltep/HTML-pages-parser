@@ -1,6 +1,8 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const proxyChain = require("proxy-chain");
+const proxyChecker = require("proxy-checker");
+const randomUseragent = require("random-useragent");
 puppeteer.use(StealthPlugin());
 /**
  * Передаем данные для proxy
@@ -11,17 +13,35 @@ puppeteer.use(StealthPlugin());
  * @param {string} password - password proxy
  */
 async function createBrowser(host, port, username, password) {
-  const proxy = `${host}:${port}`;
-  const originalUrl = `http://${username}:${password}@${proxy}`;
-  const newProxy = await proxyChain.anonymizeProxy(originalUrl);
+  let args = [
+    "--window-size=425,700",
+    `--ignore-certificate-errors`,
+    "--no-sandbox",
+  ];
+  let newProxy;
+  if (host && port && username && password) {
+    const proxy = `${host}:${port}`;
+    const originalUrl = `http://${username}:${password}@${proxy}`;
+    newProxy = await proxyChain.anonymizeProxy(originalUrl);
+    proxyChecker.checkProxy(
+      newProxy,
+      port,
+      {
+        url: "https://www.google.com/", // URL для проверки
+      },
+      (host, port, ok, statusCode, err) => {
+        if (ok) {
+          args.push(`--proxy-server=${newProxy}`);
+        } else {
+          newProxy = null;
+        }
+      }
+    );
+  }
+
   const browser = await puppeteer.launch({
     headless: false,
-    args: [
-      "--window-size=425,700",
-      `--ignore-certificate-errors`,
-      "--no-sandbox",
-      `--proxy-server=${newProxy}`,
-    ],
+    args: args,
   });
 
   const page = await browser.newPage();
@@ -38,6 +58,11 @@ async function createBrowser(host, port, username, password) {
       value: patchedRTCConfig,
     });
   });
+  if (!newProxy) {
+    const userAgent = randomUseragent.getRandom();
+    await page.setUserAgent(userAgent);
+  }
+
   await page.setExtraHTTPHeaders({
     referer: "www.google.com",
     accept:

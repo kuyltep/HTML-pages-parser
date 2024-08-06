@@ -27,10 +27,28 @@ async function fetchDataFromPage(url, host, port, username, password) {
       return url.includes(domain);
     });
 
+    const withoutNavigation = [
+      "coindesk.com",
+      "cointelegraph.com",
+      "beincrypto.com",
+      "dailyhodl.com",
+    ];
+
     await page.goto(`${url}`, {
       waitUntil: "domcontentloaded",
       timeout: 80000,
     });
+
+    const isWithoutNavigation = withoutNavigation.some((domain) => {
+      return url.includes(domain);
+    });
+
+    // if (!isWithoutNavigation) {
+    //   await page.waitForNavigation({
+    //     waitUntil: "domcontentloaded",
+    //     timeout: 80000,
+    //   });
+    // }
 
     const body = await page.$("body");
     const bodyZone = await body.evaluate(() => {
@@ -270,7 +288,9 @@ async function fetchDataFromPage(url, host, port, username, password) {
     return;
   } finally {
     await browser.close();
-    await proxyChain.closeAnonymizedProxy(newProxy, true);
+    if (newProxy) {
+      await proxyChain.closeAnonymizedProxy(newProxy, true);
+    }
   }
 }
 
