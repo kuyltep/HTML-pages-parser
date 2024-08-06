@@ -2,11 +2,16 @@ const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const proxyChain = require("proxy-chain");
 puppeteer.use(StealthPlugin());
-
-async function createBrowser() {
-  const proxy = "mproxy.site:14053";
-  const username = "YGFeP4";
-  const password = "heHYK8EpDAg6";
+/**
+ * Передаем данные для proxy
+ *
+ * @param {string} host - host proxy
+ * @param {string | number} port - port proxy
+ * @param {string} username - username proxy
+ * @param {string} password - password proxy
+ */
+async function createBrowser(host, port, username, password) {
+  const proxy = `${host}:${port}`;
   const originalUrl = `http://${username}:${password}@${proxy}`;
   const newProxy = await proxyChain.anonymizeProxy(originalUrl);
   const browser = await puppeteer.launch({

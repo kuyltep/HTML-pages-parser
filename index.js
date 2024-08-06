@@ -7,9 +7,18 @@ const proxyChain = require("proxy-chain");
 let page;
 let browser;
 let newProxy;
-async function fetchDataFromPage(url) {
+/**
+ * Передаем данные для proxy
+ *
+ * @param {string} url - page url
+ * @param {string} host - host proxy
+ * @param {string | number} port - port proxy
+ * @param {string} username - username proxy
+ * @param {string} password - password proxy
+ */
+async function fetchDataFromPage(url, host, port, username, password) {
   try {
-    const data = await createBrowser();
+    const data = await createBrowser(host, port, username, password);
     page = data[0];
     browser = data[1];
     newProxy = data[2];
@@ -18,36 +27,10 @@ async function fetchDataFromPage(url) {
       return url.includes(domain);
     });
 
-    const withoutNavigation = [
-      "coindesk.com",
-      "cointelegraph.com",
-      "beincrypto.com",
-      "dailyhodl.com",
-      "mpost.io",
-    ];
-
-    // if (isUrlWithCloudflare) {
-    //   await page.goto(
-    //     `https://webcache.googleusercontent.com/search?q=cache:${url}`,
-    //     { waitUntil: "domcontentloaded", timeout: 60000 }
-    //   );
-    // } else {
     await page.goto(`${url}`, {
       waitUntil: "domcontentloaded",
       timeout: 80000,
     });
-    // }
-
-    const isWithoutNavigation = withoutNavigation.some((domain) => {
-      return url.includes(domain);
-    });
-
-    // if (!isWithoutNavigation) {
-    //   await page.waitForNavigation({
-    //     waitUntil: "domcontentloaded",
-    //     timeout: 80000,
-    //   });
-    // }
 
     const body = await page.$("body");
     const bodyZone = await body.evaluate(() => {
@@ -290,9 +273,5 @@ async function fetchDataFromPage(url) {
     await proxyChain.closeAnonymizedProxy(newProxy, true);
   }
 }
-
-fetchDataFromPage(
-  "https://www.theblock.co/post/307693/bitwise-hangs-banner-on-nyse-facade-to-promote-spot-ethereum-etf"
-);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;
