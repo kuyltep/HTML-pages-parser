@@ -2,43 +2,52 @@ const generateColumnTree = require("./src/modules/generateColumnTree.js");
 const findMainContentColumn = require("./src/modules/findMainContentColumn.js");
 const createTextFromColumn = require("./src/modules/createTextFromColumn.js");
 const createBrowser = require("./src/modules/puppBrowser.js");
+const proxyChain = require("proxy-chain");
+
+let page;
+let browser;
+let newProxy;
 async function fetchDataFromPage(url) {
   try {
-    const { page, browser } = await createBrowser();
-
-    const domainsWithCloudflare = ["beincrypto.com"];
+    const data = await createBrowser();
+    page = data[0];
+    browser = data[1];
+    newProxy = data[2];
+    const domainsWithCloudflare = ["beincrypto.com", "cointelegraph.com"];
     let isUrlWithCloudflare = domainsWithCloudflare.some((domain) => {
       return url.includes(domain);
     });
 
-    const withoutNavigation = ["coindesk.com"];
+    const withoutNavigation = [
+      "coindesk.com",
+      "cointelegraph.com",
+      "beincrypto.com",
+      "dailyhodl.com",
+      "mpost.io",
+    ];
 
-    if (isUrlWithCloudflare) {
-      await page.goto(
-        `https://webcache.googleusercontent.com/search?q=cache:${url}`,
-        { waitUntil: "domcontentloaded", timeout: 60000 }
-      );
-      await page.waitForNavigation({
-        waitUntil: "domcontentloaded",
-        timeout: 60000,
-      });
-    } else {
-      await page.goto(`${url}`, {
-        waitUntil: "domcontentloaded",
-        timeout: 60000,
-      });
-    }
+    // if (isUrlWithCloudflare) {
+    //   await page.goto(
+    //     `https://webcache.googleusercontent.com/search?q=cache:${url}`,
+    //     { waitUntil: "domcontentloaded", timeout: 60000 }
+    //   );
+    // } else {
+    await page.goto(`${url}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 80000,
+    });
+    // }
 
     const isWithoutNavigation = withoutNavigation.some((domain) => {
       return url.includes(domain);
     });
 
-    if (!isWithoutNavigation) {
-      await page.waitForNavigation({
-        waitUntil: "domcontentloaded",
-        timeout: 60000,
-      });
-    }
+    // if (!isWithoutNavigation) {
+    //   await page.waitForNavigation({
+    //     waitUntil: "domcontentloaded",
+    //     timeout: 80000,
+    //   });
+    // }
 
     const body = await page.$("body");
     const bodyZone = await body.evaluate(() => {
@@ -64,6 +73,8 @@ async function fetchDataFromPage(url) {
           "overflow-hidden",
           "slider",
           "join",
+          "twitter",
+          "linkbox",
           "sign",
           "aside",
           "post-blocks",
@@ -79,6 +90,8 @@ async function fetchDataFromPage(url) {
           "btn",
           "button",
           "modal",
+          "disclaimer",
+          "disclosure",
         ];
         removedClassNames.forEach((substring) => {
           const className = child.className.baseVal || child.className;
@@ -100,12 +113,7 @@ async function fetchDataFromPage(url) {
         elements.forEach((el) => {
           const style = window.getComputedStyle(el);
           const fontSize = parseFloat(style.fontSize);
-          const overflow = style.overflow;
-          if (
-            style.position === "sticky" ||
-            fontSize <= 12 ||
-            overflow === "hidden"
-          ) {
+          if (style.position === "sticky" || fontSize <= 12) {
             el.remove();
           }
         });
@@ -269,13 +277,22 @@ async function fetchDataFromPage(url) {
       const mainColumn = findMainContentColumn(columns);
       const text = createTextFromColumn(mainColumn);
       await browser.close();
+      console.log(text);
       return text;
     } else {
       return "Error in read data from page";
     }
   } catch (error) {
-    console.error("Произошла ошибка:", error);
+    console.log(error);
+    return;
+  } finally {
+    await browser.close();
+    await proxyChain.closeAnonymizedProxy(newProxy, true);
   }
 }
+
+fetchDataFromPage(
+  "https://www.theblock.co/post/307693/bitwise-hangs-banner-on-nyse-facade-to-promote-spot-ethereum-etf"
+);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;

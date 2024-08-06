@@ -1,6 +1,6 @@
 {
   "name": "html-pages-parser",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "html pages parser module",
   "main": "index.js",
   "license": "ISC",
@@ -17,8 +17,12 @@
   "type": "commonjs",
   "dependencies": {
     "@extractus/article-extractor": "^8.0.10",
+    "proxy-chain": "^2.5.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-real-browser": "^1.2.20"
+  },
+  "resolutions": {
+    "puppeteer-afp": "https://github.com/zfcsoftware/puppeteer-afp"
   }
 }
