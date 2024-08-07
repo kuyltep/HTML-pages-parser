@@ -1,13 +1,47 @@
 function createTextFromColumn(column) {
   const uniqueTexts = new Set();
   let text = "";
+  const uselessText = [
+    "read more about",
+    "edited by",
+    "generally intelligent newsletter",
+    "total views",
+    "total shares",
+    "own this piece of crypto history",
+    "collect this article as nft",
+    "related: ",
+    "magazine: ",
+    "share ",
+    "subscribe to ",
+    "tags",
+    "more from news",
+    "permissionless",
+    "upcoming events",
+    "newsletter",
+    "recent research",
+    "breaking headlines across our core coverage categories",
+    "use cookies",
+    "read more:",
+    "disclaimer",
+    "generated image",
+    "check price action",
+    "follow us",
+    "surf the daily",
+    "wiki crypto",
+    "cookie",
+  ];
   function getTextFromChilds(child) {
     if (child.text.length) {
-      const isBlock = isBlockElement(child.tag);
-      if (isBlock) {
-        uniqueTexts.add(`${child.text}\n\n`);
-      } else {
-        uniqueTexts.add(child.text);
+      const isUselessText = uselessText.some((uselessTextItem) => {
+        return child.text.toLowerCase().includes(uselessTextItem);
+      });
+      if (!isUselessText) {
+        const isBlock = isBlockElement(child.tag);
+        if (isBlock) {
+          uniqueTexts.add(`${child.text}\n\n`);
+        } else {
+          uniqueTexts.add(child.text);
+        }
       }
     }
     if (child.children.length) {
@@ -17,14 +51,20 @@ function createTextFromColumn(column) {
     }
   }
   column.zones.forEach((zone) => {
-    if (zone.text.length) {
-      const isBlock = isBlockElement(zone.tag);
-      if (isBlock) {
-        uniqueTexts.add(`${zone.text}\n\n`);
-      } else {
-        uniqueTexts.add(zone.text);
+    const isUselessText = uselessText.some((uselessTextItem) => {
+      return zone.text.toLowerCase().includes(uselessTextItem);
+    });
+    if (!isUselessText) {
+      if (zone.text.length) {
+        const isBlock = isBlockElement(zone.tag);
+        if (isBlock) {
+          uniqueTexts.add(`${zone.text}\n\n`);
+        } else {
+          uniqueTexts.add(zone.text);
+        }
       }
     }
+
     if (zone.children.length) {
       zone.children.forEach((child) => {
         getTextFromChilds(child);

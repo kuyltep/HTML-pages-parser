@@ -31,7 +31,6 @@ async function fetchDataFromPage(url, host, port, username, password) {
       "coindesk.com",
       "cointelegraph.com",
       "beincrypto.com",
-      "dailyhodl.com",
     ];
 
     await page.goto(`${url}`, {
@@ -56,6 +55,7 @@ async function fetchDataFromPage(url, host, port, username, password) {
         let isRemoved = false;
         const removedClassNames = [
           "popularRail",
+          "uppercase",
           "_widget",
           "widget_",
           "faq",
@@ -78,6 +78,7 @@ async function fetchDataFromPage(url, host, port, username, password) {
           "linkbox",
           "sign",
           "aside",
+          "autor",
           "post-blocks",
           "author",
           "advertisement",
@@ -89,9 +90,11 @@ async function fetchDataFromPage(url, host, port, username, password) {
           "recommend",
           "found",
           "btn",
+          "debug-story-preview",
           "button",
           "modal",
-          "disclaimer",
+          "disclamer",
+          "disclimer",
           "disclosure",
         ];
         removedClassNames.forEach((substring) => {
@@ -103,7 +106,6 @@ async function fetchDataFromPage(url, host, port, username, password) {
             (child.id && child.id.includes("google-cache-hdr"))
           ) {
             isRemoved = true;
-            console.log(child.className);
           }
         });
         return isRemoved;
@@ -293,5 +295,9 @@ async function fetchDataFromPage(url, host, port, username, password) {
     }
   }
 }
+
+fetchDataFromPage(
+  "https://www.dlnews.com/articles/markets/why-ai-isnt-to-blame-for-crypto-momentum-fading/"
+);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;

@@ -14,7 +14,7 @@ npm install html-pages-parser
 const parser = require("html-pages-parser");
 
 async function getDataFromPage(url) {
-  const data = await parser(url); // Возвращает данные в формате JSON
+  const data = await parser(url); // Возвращает данные в формате string
   return data;
 }
 
