@@ -296,8 +296,4 @@ async function fetchDataFromPage(url, host, port, username, password) {
   }
 }
 
-fetchDataFromPage(
-  "https://www.dlnews.com/articles/markets/why-ai-isnt-to-blame-for-crypto-momentum-fading/"
-);
-
 module.exports.fetchDataFromPage = fetchDataFromPage;

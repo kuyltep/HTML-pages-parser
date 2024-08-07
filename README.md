@@ -12,9 +12,18 @@ npm install html-pages-parser
 
 ```javascript
 const parser = require("html-pages-parser");
-
-async function getDataFromPage(url) {
-  const data = await parser(url); // Возвращает данные в формате string
+/**
+ * Data for proxy (is not required)
+ * @param {string} url - page url
+ * @param {string} host - host proxy
+ * @param {string | number} port - port proxy
+ * @param {string} username - username proxy
+ * @param {string} password - password proxy
+ */
+//Proxy is not required, you can use library without proxy
+//(if you don't use proxy or your proxy is incorrect parser working with default settings)
+async function getDataFromPage(url, host, port, username, password) {
+  const data = await parser(url, host, port, username, password); // return string data
   return data;
 }
 
