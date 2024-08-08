@@ -2,7 +2,7 @@
 
 **Описание**
 
-Этот модуль предоставляет простой и удобный способ извлекать данные из HTML-страниц в формате JSON.
+npm module for parse html pages with options which you can provide
 
 **Установка**
 
