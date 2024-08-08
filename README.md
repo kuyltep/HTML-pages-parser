@@ -19,9 +19,9 @@ const parser = require("html-pages-parser");
  * @param {string | number} options.port - port proxy
  * @param {string} options.username - username proxy
  * @param {string} options.password - password proxy
- * @param {string[]} optoins.classesToRemove - array with classes by which the parser delete the elements //optional has default array for crypto sites
- * @param {string[]} optoins.tagsToRemove - array with tags which the parser delete the elements //optional has default array for crypto sites
- * @param {string[]} optoins.tagsToRemove - array with tags which the parser delete the elements //optional has default array for crypto sites
+ * @param {string[]} options.classesToRemove - array with classes by which the parser delete the elements //optional has default array for crypto sites
+ * @param {string[]} options.tagsToRemove - array with tags which the parser delete the elements //optional has default array for crypto sites
+ * @param {string[]} options.textToRemove - array with text which the parser delete the elements with this text //optional has default array for crypto sites
  */
 //Proxy is not required, you can use library without proxy
 //(if you don't use proxy or your proxy is incorrect parser working with default settings)

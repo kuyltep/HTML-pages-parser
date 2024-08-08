@@ -1,35 +1,38 @@
-function createTextFromColumn(column) {
+function createTextFromColumn(column, textToRemove) {
   const uniqueTexts = new Set();
   let text = "";
-  const uselessText = [
-    "read more about",
-    "edited by",
-    "generally intelligent newsletter",
-    "total views",
-    "total shares",
-    "own this piece of crypto history",
-    "collect this article as nft",
-    "related: ",
-    "magazine: ",
-    "share ",
-    "subscribe to ",
-    "tags",
-    "more from news",
-    "permissionless",
-    "upcoming events",
-    "newsletter",
-    "recent research",
-    "breaking headlines across our core coverage categories",
-    "use cookies",
-    "read more:",
-    "disclaimer",
-    "generated image",
-    "check price action",
-    "follow us",
-    "surf the daily",
-    "wiki crypto",
-    "cookie",
-  ];
+  const uselessText =
+    textToRemove && textToRemove.length
+      ? textToRemove
+      : [
+          "read more about",
+          "edited by",
+          "generally intelligent newsletter",
+          "total views",
+          "total shares",
+          "own this piece of crypto history",
+          "collect this article as nft",
+          "related: ",
+          "magazine: ",
+          "share ",
+          "subscribe to ",
+          "tags",
+          "more from news",
+          "permissionless",
+          "upcoming events",
+          "newsletter",
+          "recent research",
+          "breaking headlines across our core coverage categories",
+          "use cookies",
+          "read more:",
+          "disclaimer",
+          "generated image",
+          "check price action",
+          "follow us",
+          "surf the daily",
+          "wiki crypto",
+          "cookie",
+        ];
   function getTextFromChilds(child) {
     if (child.text.length) {
       const isUselessText = uselessText.some((uselessTextItem) => {
