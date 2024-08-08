@@ -5,19 +5,22 @@ const createBrowser = require("./src/modules/puppBrowser.js");
 const proxyChain = require("proxy-chain");
 
 /**
- * Передаем данные для proxy
- *
  * @param {string} url - page url
- * @param {string} host - host proxy
- * @param {string | number} port - port proxy
- * @param {string} username - username proxy
- * @param {string} password - password proxy
+ * @param {object} options - options for parser
+ * @param {string} options.host - host proxy
+ * @param {string | number} options.port - port proxy
+ * @param {string} options.username - username proxy
+ * @param {string} options.password - password proxy
+ * @param {string[]} optoins.classesToRemove - array with classes by which the parser delete the elements //optional has default array for crypto sites
+ * @param {string[]} optoins.tagsToRemove - array with tags which the parser delete the elements //optional has default array for crypto sites
+ * @param {string[]} optoins.tagsToRemove - array with tags which the parser delete the elements //optional has default array for crypto sites
  */
-async function fetchDataFromPage(url, host, port, username, password) {
+async function fetchDataFromPage(url, options) {
   let page;
   let browser;
   let newProxy;
   try {
+    const { host, port, username, password } = options;
     const data = await createBrowser(host, port, username, password);
     page = data[0];
     browser = data[1];
