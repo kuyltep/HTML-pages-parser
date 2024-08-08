@@ -61,7 +61,7 @@ async function fetchDataFromPage(url, options = {}) {
         function removeELementsByClassName(child) {
           let isRemoved = false;
           const removedClassNames =
-            options.classesToRemove && options.classesToRemove.length
+            options.classesToRemove && Array.isArray(options.classesToRemove)
               ? options.classesToRemove
               : [
                   "popularRail",
@@ -134,7 +134,7 @@ async function fetchDataFromPage(url, options = {}) {
 
         function removeUselessTags(document) {
           const tagsToRemove =
-            options.tagsToRemove && options.tagsToRemove.length
+            options.tagsToRemove && Array.isArray(options.tagsToRemove)
               ? options.tagsToRemove
               : [
                   "script",

@@ -2,7 +2,7 @@ function createTextFromColumn(column, textToRemove) {
   const uniqueTexts = new Set();
   let text = "";
   const uselessText =
-    textToRemove && textToRemove.length
+    textToRemove && Array.isArray(textToRemove)
       ? textToRemove
       : [
           "read more about",
