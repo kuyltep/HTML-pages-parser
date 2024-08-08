@@ -296,8 +296,4 @@ async function fetchDataFromPage(url, host, port, username, password) {
   }
 }
 
-fetchDataFromPage(
-  "https://www.coindesk.com/tech/2024/08/06/wifi-provider-andrena-raises-18m-to-offer-decentralized-broadband/?utm_medium=referral&utm_source=rss&utm_campaign=headlines"
-);
-
 module.exports.fetchDataFromPage = fetchDataFromPage;
