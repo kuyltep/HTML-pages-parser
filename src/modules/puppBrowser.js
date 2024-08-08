@@ -40,12 +40,11 @@ async function createBrowser(host, port, username, password) {
   }
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: args,
   });
 
   const page = await browser.newPage();
-  await page.authenticate({ username, password });
   await page.evaluateOnNewDocument(() => {
     Object.defineProperty(navigator, "webdriver", {
       get: () => false,

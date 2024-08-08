@@ -1,6 +1,6 @@
 {
   "name": "html-pages-parser",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "html pages parser module",
   "main": "index.js",
   "license": "ISC",

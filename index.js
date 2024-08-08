@@ -4,9 +4,6 @@ const createTextFromColumn = require("./src/modules/createTextFromColumn.js");
 const createBrowser = require("./src/modules/puppBrowser.js");
 const proxyChain = require("proxy-chain");
 
-let page;
-let browser;
-let newProxy;
 /**
  * Передаем данные для proxy
  *
@@ -17,6 +14,9 @@ let newProxy;
  * @param {string} password - password proxy
  */
 async function fetchDataFromPage(url, host, port, username, password) {
+  let page;
+  let browser;
+  let newProxy;
   try {
     const data = await createBrowser(host, port, username, password);
     page = data[0];
@@ -279,8 +279,6 @@ async function fetchDataFromPage(url, host, port, username, password) {
       const columns = generateColumnTree(bodyZone.children);
       const mainColumn = findMainContentColumn(columns);
       const text = createTextFromColumn(mainColumn);
-      await browser.close();
-      console.log(text);
       return text;
     } else {
       return "Error in read data from page";
@@ -289,11 +287,17 @@ async function fetchDataFromPage(url, host, port, username, password) {
     console.log(error);
     return;
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
     if (newProxy) {
       await proxyChain.closeAnonymizedProxy(newProxy, true);
     }
   }
 }
+
+fetchDataFromPage(
+  "https://www.coindesk.com/tech/2024/08/06/wifi-provider-andrena-raises-18m-to-offer-decentralized-broadband/?utm_medium=referral&utm_source=rss&utm_campaign=headlines"
+);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;
