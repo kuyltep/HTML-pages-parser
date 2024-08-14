@@ -41,7 +41,7 @@ async function fetchDataFromPage(url, options = {}) {
 
     await page.goto(`${url}`, {
       waitUntil: "domcontentloaded",
-      timeout: 80000,
+      timeout: 90000,
     });
 
     const isWithoutNavigation = withoutNavigation.some((domain) => {
@@ -297,13 +297,24 @@ async function fetchDataFromPage(url, options = {}) {
       const columns = generateColumnTree(bodyZone.children);
       const mainColumn = findMainContentColumn(columns);
       const text = createTextFromColumn(mainColumn, options.textToRemove);
+      const blockedText = [
+        "Why have I been blocked?",
+        "Cloudflare",
+        "Verify you are human",
+      ];
+      const isBlockedText = blockedText.some((blockText) => {
+        return text.includes(blockText);
+      });
+      if (isBlockedText) {
+        throw new Error("Block page");
+      }
+      console.log(text);
       return text;
     } else {
-      return "Error in read data from page";
+      throw new Error("Error in read data from page");
     }
   } catch (error) {
-    console.log(error);
-    return;
+    throw new Error(error);
   } finally {
     if (browser) {
       await browser.close();
@@ -313,9 +324,5 @@ async function fetchDataFromPage(url, options = {}) {
     }
   }
 }
-
-fetchDataFromPage(
-  "https://www.coindesk.com/tech/2024/08/06/wifi-provider-andrena-raises-18m-to-offer-decentralized-broadband/?utm_medium=referral&utm_source=rss&utm_campaign=headlines"
-);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;

@@ -57,10 +57,8 @@ async function createBrowser(host, port, username, password) {
       value: patchedRTCConfig,
     });
   });
-  if (!newProxy) {
-    const userAgent = randomUseragent.getRandom();
-    await page.setUserAgent(userAgent);
-  }
+  const userAgent = randomUseragent.getRandom();
+  await page.setUserAgent(userAgent);
 
   await page.setExtraHTTPHeaders({
     referer: "www.google.com",
