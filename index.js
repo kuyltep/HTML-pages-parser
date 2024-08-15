@@ -301,6 +301,8 @@ async function fetchDataFromPage(url, options = {}) {
         "Why have I been blocked?",
         "Cloudflare",
         "Verify you are human",
+        "What happened? The owner of this website (mpost.io) has banned your access based on your browser's signature ",
+        "has banned your access based on your",
       ];
       const isBlockedText = blockedText.some((blockText) => {
         return text.includes(blockText);
