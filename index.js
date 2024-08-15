@@ -307,7 +307,7 @@ async function fetchDataFromPage(url, options = {}) {
       const isBlockedText = blockedText.some((blockText) => {
         return text.includes(blockText);
       });
-      if (isBlockedText) {
+      if (isBlockedText || text.length <= 200) {
         throw new Error("Block page");
       }
       console.log(text);
