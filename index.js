@@ -82,6 +82,7 @@ async function fetchDataFromPage(url, options = {}) {
                   "self-stretch",
                   "Cookie",
                   "overflow-hidden",
+                  "lg:hidden",
                   "slider",
                   "join",
                   "twitter",
@@ -296,7 +297,7 @@ async function fetchDataFromPage(url, options = {}) {
     if (bodyZone.children.length) {
       const columns = generateColumnTree(bodyZone.children);
       const mainColumn = findMainContentColumn(columns);
-      const text = createTextFromColumn(mainColumn, options.textToRemove);
+      const text = createTextFromColumn(mainColumn, options.textToRemove, url);
       const blockedText = [
         "Why have I been blocked?",
         "Cloudflare",

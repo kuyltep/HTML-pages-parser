@@ -1,23 +1,27 @@
-function createTextFromColumn(column, textToRemove) {
+function createTextFromColumn(column, textToRemove, url) {
   const uniqueTexts = new Set();
   let text = "";
+  const especiallyDomains = ["theblock"];
+  const isEspeciallyDomain = especiallyDomains.some((domain) => {
+    return url.includes(domain);
+  });
   const uselessText =
     textToRemove && Array.isArray(textToRemove)
       ? textToRemove
       : [
           "read more about",
+          "learn more about",
           "edited by",
           "generally intelligent newsletter",
           "total views",
           "total shares",
+          "more from news",
+          "permissionless",
           "own this piece of crypto history",
           "collect this article as nft",
           "related: ",
           "magazine: ",
-          "share ",
           "subscribe to ",
-          "more from news",
-          "permissionless",
           "upcoming events",
           "recent research",
           "breaking headlines across our core coverage categories",
@@ -29,12 +33,21 @@ function createTextFromColumn(column, textToRemove) {
           "surf the daily",
           "wiki crypto",
           "cookie",
+          "privacy policy",
+          "disclaimer",
+          "top crypto platforms",
+          "alphafold 3",
+          "newsletter",
+          "from ripple to the",
         ];
   function getTextFromChilds(child) {
     if (child.text.length) {
-      const isUselessText = uselessText.some((uselessTextItem) => {
-        return child.text.toLowerCase().includes(uselessTextItem);
-      });
+      let isUselessText = false;
+      if (!isEspeciallyDomain) {
+        isUselessText = uselessText.some((uselessTextItem) => {
+          return child.text.toLowerCase().includes(uselessTextItem);
+        });
+      }
       if (!isUselessText) {
         const isBlock = isBlockElement(child.tag);
         if (isBlock) {
@@ -51,9 +64,12 @@ function createTextFromColumn(column, textToRemove) {
     }
   }
   column.zones.forEach((zone) => {
-    const isUselessText = uselessText.some((uselessTextItem) => {
-      return zone.text.toLowerCase().includes(uselessTextItem);
-    });
+    let isUselessText = false;
+    if (!isEspeciallyDomain) {
+      isUselessText = uselessText.some((uselessTextItem) => {
+        return zone.text.toLowerCase().includes(uselessTextItem);
+      });
+    }
     if (!isUselessText) {
       if (zone.text.length) {
         const isBlock = isBlockElement(zone.tag);
@@ -79,6 +95,17 @@ function createTextFromColumn(column, textToRemove) {
   if (text.startsWith("\n\n") && text.endsWith("\n\n")) {
     text = text.slice(4, text.length - 4);
   }
+
+  const especiallyDomainsTextToDelete = ["Disclaimer:"];
+  if (isEspeciallyDomain) {
+    let totalText = "";
+    especiallyDomainsTextToDelete.forEach((textToDelete) => {
+      const indexOfTextToDelete = text.lastIndexOf(textToDelete);
+      totalText = text.slice(0, indexOfTextToDelete);
+      text = totalText;
+    });
+  }
+
   return text;
 }
 
