@@ -303,6 +303,7 @@ async function fetchDataFromPage(url, options = {}) {
         "Verify you are human",
         "What happened? The owner of this website (mpost.io) has banned your access based on your browser's signature ",
         "has banned your access based on your",
+        "unblock challenges.cloudflare.com",
       ];
       const isBlockedText = blockedText.some((blockText) => {
         return text.includes(blockText);
@@ -310,7 +311,6 @@ async function fetchDataFromPage(url, options = {}) {
       if (isBlockedText || text.length <= 200) {
         throw new Error("Block page");
       }
-      console.log(text);
       return text;
     } else {
       throw new Error("Error in read data from page");
