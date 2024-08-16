@@ -81,7 +81,6 @@ async function fetchDataFromPage(url, options = {}) {
                   "tags",
                   "self-stretch",
                   "Cookie",
-                  "overflow-hidden",
                   "lg:hidden",
                   "slider",
                   "join",

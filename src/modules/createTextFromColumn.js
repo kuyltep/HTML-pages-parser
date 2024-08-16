@@ -39,6 +39,10 @@ function createTextFromColumn(column, textToRemove, url) {
           "alphafold 3",
           "newsletter",
           "from ripple to the",
+          "loading...",
+          "read next:",
+          "photo:",
+          "sign in",
         ];
   function getTextFromChilds(child) {
     if (child.text.length) {
