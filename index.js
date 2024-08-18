@@ -314,7 +314,6 @@ async function fetchDataFromPage(url, options = {}) {
       if (isBlockedText || text.length <= 200) {
         throw new Error("Block page");
       }
-      console.log(text);
       return text;
     } else {
       throw new Error("Error in read data from page");
@@ -330,8 +329,5 @@ async function fetchDataFromPage(url, options = {}) {
     }
   }
 }
-fetchDataFromPage(
-  "https://www.forbes.com/sites/digital-assets/2024/08/16/bitcoin-and-crypto-suddenly-braced-for-a-powerful-apple-iphone-update-after-price-swings/"
-);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;
