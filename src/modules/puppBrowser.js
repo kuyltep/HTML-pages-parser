@@ -1,10 +1,6 @@
-const puppeteer = require("puppeteer-extra");
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const proxyChain = require("proxy-chain");
 const proxyChecker = require("proxy-checker");
 const randomUseragent = require("random-useragent");
-const path = require("path");
-puppeteer.use(StealthPlugin());
 /**
  * Передаем данные для proxy
  *
@@ -14,7 +10,7 @@ puppeteer.use(StealthPlugin());
  * @param {string} password - password proxy
  */
 
-const { chromium, firefox } = require("playwright");
+const { firefox } = require("playwright");
 
 async function createBrowser(host, port, username, password) {
   let proxyUrl;
