@@ -1,6 +1,6 @@
 {
   "name": "html-pages-parser",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "html pages parser module",
   "main": "index.js",
   "license": "ISC",
@@ -17,6 +17,7 @@
   "type": "commonjs",
   "dependencies": {
     "@extractus/article-extractor": "^8.0.10",
+    "playwright": "^1.46.1",
     "proxy-chain": "^2.5.1",
     "proxy-checker": "^1.0.0",
     "puppeteer-extra": "^3.3.6",

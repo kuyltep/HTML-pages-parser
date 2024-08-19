@@ -3,6 +3,7 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const proxyChain = require("proxy-chain");
 const proxyChecker = require("proxy-checker");
 const randomUseragent = require("random-useragent");
+const path = require("path");
 puppeteer.use(StealthPlugin());
 /**
  * Передаем данные для proxy
@@ -12,13 +13,16 @@ puppeteer.use(StealthPlugin());
  * @param {string} username - username proxy
  * @param {string} password - password proxy
  */
+
+const { chromium, firefox } = require("playwright");
+
 async function createBrowser(host, port, username, password) {
+  let proxyUrl;
+  const userAgent = randomUseragent.getRandom();
   let args = [
-    "--window-size=425,700",
-    `--ignore-certificate-errors`,
-    "--no-sandbox",
+    `--ignore-certificate-errors`, // Ignore certificate errors
+    "--no-sandbox", // Disable sandbox
   ];
-  let newProxy;
   if (host && port && username && password) {
     const proxy = `${host}:${port}`;
     const originalUrl = `http://${username}:${password}@${proxy}`;
@@ -39,28 +43,16 @@ async function createBrowser(host, port, username, password) {
     );
   }
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: args,
+  const browser = await firefox.launch({
+    headless: false, // Set to true for headless mode
+    channel: "firefox", // Specify Firefox browser
+    args: args.filter((arg) => arg),
   });
-
-  const page = await browser.newPage();
-  await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(navigator, "webdriver", {
-      get: () => false,
-    });
-    const patchedRTCConfig = {
-      iceServers: [{ urls: "stun:stun.example.org" }],
-    };
-    Object.defineProperty(window, "RTCConfiguration", {
-      writable: false,
-      value: patchedRTCConfig,
-    });
+  const context = await browser.newContext({
+    ignoreHTTPSErrors: true,
+    userAgent: userAgent,
   });
-  const userAgent = randomUseragent.getRandom();
-  await page.setUserAgent(userAgent);
-
-  await page.setExtraHTTPHeaders({
+  context.setExtraHTTPHeaders({
     referer: "www.google.com",
     accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -68,6 +60,10 @@ async function createBrowser(host, port, username, password) {
     "cache-control": "max-age=0",
     "accept-encoding": "gzip, deflate, br",
   });
-  return [page, browser, newProxy];
+
+  const page = await context.newPage();
+  await page.setViewportSize({ width: 500, height: 700 });
+
+  return [page, browser, proxyUrl];
 }
 module.exports = createBrowser;

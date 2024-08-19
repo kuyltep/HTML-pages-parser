@@ -28,34 +28,16 @@ async function fetchDataFromPage(url, options = {}) {
     page = data[0];
     browser = data[1];
     newProxy = data[2];
-    const domainsWithCloudflare = ["beincrypto.com", "cointelegraph.com"];
-    let isUrlWithCloudflare = domainsWithCloudflare.some((domain) => {
-      return url.includes(domain);
-    });
 
-    const withoutNavigation = [
-      "coindesk.com",
-      "cointelegraph.com",
-      "beincrypto.com",
-    ];
-
-    await page.goto(`${url}`, {
+    await page.goto(`about:reader?url=${url}`, {
       waitUntil: "domcontentloaded",
       timeout: 90000,
     });
 
-    const isWithoutNavigation = withoutNavigation.some((domain) => {
-      return url.includes(domain);
-    });
-
-    // if (!isWithoutNavigation) {
-    //   await page.waitForNavigation({
-    //     waitUntil: "domcontentloaded",
-    //     timeout: 80000,
-    //   });
-    // }
+    await page.waitForTimeout(2000);
 
     const body = await page.$("body");
+
     const bodyZone = await body.evaluate(
       (options) => {
         function removeELementsByClassName(child) {
@@ -314,6 +296,7 @@ async function fetchDataFromPage(url, options = {}) {
       if (isBlockedText || text.length <= 200) {
         throw new Error("Block page");
       }
+      console.log(text);
       return text;
     } else {
       throw new Error("Error in read data from page");
@@ -329,5 +312,12 @@ async function fetchDataFromPage(url, options = {}) {
     }
   }
 }
+
+fetchDataFromPage(
+  "https://www.benzinga.com/partner/cryptocurrency/24/08/40415403/want-to-grab-some-bitcoins-heres-how-seasonal-tokens-could-help-you-with-that",
+  {
+    classesToRemove: [],
+  }
+);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;
