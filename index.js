@@ -33,8 +33,7 @@ async function fetchDataFromPage(url, options = {}) {
       waitUntil: "domcontentloaded",
       timeout: 90000,
     });
-
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
 
     const body = await page.$("body");
 
@@ -314,9 +313,9 @@ async function fetchDataFromPage(url, options = {}) {
 }
 
 fetchDataFromPage(
-  "https://www.benzinga.com/partner/cryptocurrency/24/08/40415403/want-to-grab-some-bitcoins-heres-how-seasonal-tokens-could-help-you-with-that",
+  "https://techcrunch.com/2024/08/15/binance-restarts-services-in-india-after-seven-month-regulatory-halt/",
   {
-    classesToRemove: [],
+    classesToRemove: ["disclosure", "sign-up"],
   }
 );
 

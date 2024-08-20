@@ -32,6 +32,7 @@ function createTextFromColumn(column, textToRemove, url) {
           "surf the daily",
           "wiki crypto",
           "cookie",
+          "published:",
           "share to",
           "privacy policy",
           "disclaimer",
@@ -42,6 +43,10 @@ function createTextFromColumn(column, textToRemove, url) {
           "loading...",
           "read next:",
           "photo:",
+          "about the author",
+          "more articles",
+          "know more",
+          "trust project guidelines",
           "sign in",
         ];
   function getTextFromChilds(child) {
@@ -92,8 +97,10 @@ function createTextFromColumn(column, textToRemove, url) {
     }
   });
 
-  uniqueTexts.forEach((value) => {
-    text += `${value} `;
+  [...uniqueTexts].forEach((value, index) => {
+    if (index > 2) {
+      text += `${value} `;
+    }
   });
   text = text.trim();
   if (text.startsWith("\n\n") && text.endsWith("\n\n")) {
