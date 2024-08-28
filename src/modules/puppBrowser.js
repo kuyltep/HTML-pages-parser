@@ -68,6 +68,6 @@ async function createBrowser(host, port, username, password) {
     "cache-control": "max-age=0",
     "accept-encoding": "gzip, deflate, br",
   });
-  return [page, browser, newProxy];
+  return { page, browser, newProxy };
 }
 module.exports = createBrowser;

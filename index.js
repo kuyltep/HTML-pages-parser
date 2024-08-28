@@ -19,15 +19,28 @@ async function fetchDataFromPage(url, options = {}) {
   let page;
   let browser;
   let newProxy;
+  async function closeConnections() {
+    if (page) {
+      await page.close();
+    }
+    if (browser) {
+      await browser.close();
+    }
+    if (newProxy) {
+      await proxyChain.closeAnonymizedProxy(newProxy, true);
+    }
+  }
   try {
     const port = options.port;
     const host = options.host;
     const username = options.username;
     const password = options.password;
     const data = await createBrowser(host, port, username, password);
-    page = data[0];
-    browser = data[1];
-    newProxy = data[2];
+
+    page = data.page;
+    browser = data.browser;
+    newProxy = data.newProxy;
+
     const domainsWithCloudflare = ["beincrypto.com", "cointelegraph.com"];
     let isUrlWithCloudflare = domainsWithCloudflare.some((domain) => {
       return url.includes(domain);
@@ -314,6 +327,7 @@ async function fetchDataFromPage(url, options = {}) {
       if (isBlockedText || text.length <= 200) {
         throw new Error("Block page");
       }
+      console.log(text);
       return text;
     } else {
       throw new Error("Error in read data from page");
@@ -321,13 +335,12 @@ async function fetchDataFromPage(url, options = {}) {
   } catch (error) {
     throw new Error(error);
   } finally {
-    if (browser) {
-      await browser.close();
-    }
-    if (newProxy) {
-      await proxyChain.closeAnonymizedProxy(newProxy, true);
-    }
+    await closeConnections();
   }
 }
+
+fetchDataFromPage(
+  "https://www.coindesk.com/sponsored-content/gamers-live-streamers-get-a-tokenomic-boost/"
+);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;
