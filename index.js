@@ -327,6 +327,7 @@ async function fetchDataFromPage(url, options = {}) {
         "Block page",
         "you are human",
         "to Confirm Identity",
+        "you have been",
       ];
       const isBlockedText = blockedText.some((blockText) => {
         return text.toLowerCase().includes(blockText.toLowerCase());
