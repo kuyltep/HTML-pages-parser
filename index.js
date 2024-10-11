@@ -52,11 +52,6 @@ async function fetchDataFromPage(url, options = {}) {
       "beincrypto.com",
     ];
 
-    await page.goto(`${url}`, {
-      waitUntil: "domcontentloaded",
-      timeout: 90000,
-    });
-
     const isWithoutNavigation = withoutNavigation.some((domain) => {
       return url.includes(domain);
     });
@@ -317,17 +312,28 @@ async function fetchDataFromPage(url, options = {}) {
         "Why have I been blocked?",
         "Cloudflare",
         "Verify you are human",
-        "What happened? The owner of this website (mpost.io) has banned your access based on your browser's signature ",
+        "What happened? The owner of this website (mpost.io) has banned your access based on your browser's signature",
         "has banned your access based on your",
         "unblock challenges.cloudflare.com",
+        "Users Advised to Confirm Identity",
+        "Network Activity Triggers Robot Verification",
+        "Confirm You're Not a Robot to Proceed",
+        "Robot Verification",
+        "Unusual Activity Detected",
+        "Confirm You're Not",
+        "confirm you are not",
+        "you are Not a Robot",
+        "has banned your access based on your browser's signature",
+        "Block page",
+        "you are human",
+        "to Confirm Identity",
       ];
       const isBlockedText = blockedText.some((blockText) => {
-        return text.includes(blockText);
+        return text.toLowerCase().includes(blockText.toLowerCase());
       });
-      if (isBlockedText || text.length <= 200) {
+      if (isBlockedText || text.length <= 250) {
         throw new Error("Block page");
       }
-      console.log(text);
       return text;
     } else {
       throw new Error("Error in read data from page");
@@ -338,9 +344,5 @@ async function fetchDataFromPage(url, options = {}) {
     await closeConnections();
   }
 }
-
-fetchDataFromPage(
-  "https://www.coindesk.com/sponsored-content/gamers-live-streamers-get-a-tokenomic-boost/"
-);
 
 module.exports.fetchDataFromPage = fetchDataFromPage;

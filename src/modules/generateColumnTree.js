@@ -1,6 +1,5 @@
 function generateColumnTree(zones, tolerance = 0.1) {
   const columns = [];
-
   zones.forEach((zone) => {
     if (zone.type === "block") {
       const left = zone.rect.left;
@@ -50,6 +49,14 @@ function generateColumnTree(zones, tolerance = 0.1) {
           column.zones.push(...childColumn.zones);
         });
       }
+    } else if (zone.type === "inline") {
+      let column = {
+        type: "column",
+        rect: zones[0].rect,
+        zones: [],
+      };
+      column.zones.push(...zones);
+      columns.push(column);
     }
   });
 
