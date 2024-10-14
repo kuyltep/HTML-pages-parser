@@ -52,6 +52,11 @@ async function fetchDataFromPage(url, options = {}) {
       "beincrypto.com",
     ];
 
+    await page.goto(`${url}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 90000,
+    });
+
     const isWithoutNavigation = withoutNavigation.some((domain) => {
       return url.includes(domain);
     });
@@ -325,9 +330,6 @@ async function fetchDataFromPage(url, options = {}) {
         "you are Not a Robot",
         "has banned your access based on your browser's signature",
         "Block page",
-        "you are human",
-        "to Confirm Identity",
-        "you have been",
       ];
       const isBlockedText = blockedText.some((blockText) => {
         return text.toLowerCase().includes(blockText.toLowerCase());
